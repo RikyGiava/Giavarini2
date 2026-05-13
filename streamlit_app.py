@@ -2061,32 +2061,38 @@ def show_host_city_cartography(df):
         .reset_index(drop=True)
     )
 
-    host_df["Latitude"] = host_df["City"].map(lambda city: city_coordinates.get(city, (None, None))[0])
-    host_df["Longitude"] = host_df["City"].map(lambda city: city_coordinates.get(city, (None, None))[1])
-    host_map_df = host_df.dropna(subset=["Latitude", "Longitude"])
+    # Creiamo un dataframe aggregato specifico per la mappa
+    map_agg_df = df.groupby('City').agg(
+        Edizioni=('Year', lambda x: ', '.join(map(str, sorted(x.unique())))),
+        Totale_Atleti=('ID', 'nunique')
+    ).reset_index()
+
+    # Mappiamo le coordinate usando il dataframe aggregato
+    map_agg_df["Latitude"] = map_agg_df["City"].map(lambda c: city_coordinates.get(c, (None, None))[0])
+    map_agg_df["Longitude"] = map_agg_df["City"].map(lambda c: city_coordinates.get(c, (None, None))[1])
+    host_map_df = map_agg_df.dropna(subset=["Latitude", "Longitude"])
 
     st.markdown('<div class="section-box">', unsafe_allow_html=True)
     st.markdown('<div class="section-title">Map of Summer Olympic Host Cities</div>', unsafe_allow_html=True)
-
+    
     fig_map = px.scatter_geo(
         host_map_df,
         lat="Latitude",
         lon="Longitude",
         hover_name="City",
-        text="Year",
+        custom_data=["Edizioni", "Totale_Atleti"],
         projection="natural earth",
     )
-
+    
+    # Aggiorniamo lo stile del marker e creiamo il pannello al passaggio del mouse
     fig_map.update_traces(
         marker=dict(
             size=13,
             color="#b88a2e",
             line=dict(width=1.5, color="#171717")
         ),
-        textposition="top center",
-        textfont=dict(size=11, color="#171717")
+        hovertemplate="<b>%{hovertext}</b><br><br>Edizioni: %{customdata[0]}<br>Atleti totali: %{customdata[1]}<extra></extra>"
     )
-
     fig_map.update_layout(
         height=620,
         margin=dict(l=0, r=0, t=0, b=0),

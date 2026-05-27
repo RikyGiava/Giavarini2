@@ -1,11 +1,14 @@
 import math
 import html
 from pathlib import Path
+import numpy as np
+import plotly.graph_objects as go
+import base64
+from PIL import Image, ImageOps
 
 import pandas as pd
 import streamlit as st
 import plotly.express as px
-
 
 # ============================================================
 # PAGE CONFIG
@@ -15,7 +18,7 @@ st.set_page_config(
     page_title="The Olympic Archive",
     page_icon="🏅",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="expanded"
 )
 
 
@@ -59,6 +62,53 @@ st.markdown(
     #MainMenu {
         visibility: hidden;
     }
+
+
+    /* ============================================================
+   FORCE SIDEBAR ARROW BLACK
+============================================================ */
+
+    /* Arrow when sidebar is collapsed */
+    [data-testid="collapsedControl"],
+    [data-testid="collapsedControl"] *,
+    [data-testid="collapsedControl"] svg,
+    [data-testid="collapsedControl"] svg path {
+        color: #171717 !important;
+        fill: #171717 !important;
+        stroke: #171717 !important;
+    }
+
+    /* Arrow/button in the Streamlit header */
+    [data-testid="stHeader"] button,
+    [data-testid="stHeader"] button *,
+    [data-testid="stHeader"] button svg,
+    [data-testid="stHeader"] button svg path {
+        color: #171717 !important;
+        fill: #171717 !important;
+        stroke: #171717 !important;
+    }
+
+    /* Arrow when sidebar is expanded */
+    [data-testid="stSidebar"] button,
+    [data-testid="stSidebar"] button *,
+    [data-testid="stSidebar"] button svg,
+    [data-testid="stSidebar"] button svg path {
+        color: #171717 !important;
+        fill: #171717 !important;
+        stroke: #171717 !important;
+    }
+
+    /* Newer Streamlit sidebar buttons */
+    button[kind="header"],
+    button[kind="header"] *,
+    button[kind="header"] svg,
+    button[kind="header"] svg path {
+        color: #171717 !important;
+        fill: #171717 !important;
+        stroke: #171717 !important;
+    }
+
+
 
     footer {
         visibility: hidden;
@@ -806,6 +856,11 @@ st.markdown(
         padding: 20px;
         margin-top: 18px;
         margin-bottom: 22px;
+        min-height: 150px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
     }
 
     .medal-detail-title {
@@ -870,21 +925,103 @@ st.markdown(
         ATHLETE EXPLORER SEARCH BAR
     ============================================================ */
 
-    [data-testid="stTextInput"] input {
-        background-color: #20232b !important;
+    /* ============================================================
+    ATHLETE EXPLORER SEARCH BAR
+============================================================ */
+
+[data-testid="stTextInput"] {
+    margin-top: 12px !important;
+    margin-bottom: 18px !important;
+}
+
+[data-testid="stTextInput"] > div {
+    background: transparent !important;
+}
+
+[data-testid="stTextInput"] div[data-baseweb="input"] {
+    background-color: #171717 !important;
+    border: 2px solid #171717 !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+}
+
+[data-testid="stTextInput"] input {
+    background-color: #171717 !important;
+    color: #f4efe3 !important;
+    caret-color: #f4efe3 !important;
+    height: 48px !important;
+    font-family: 'Roboto Mono', monospace !important;
+    font-size: 15px !important;
+    border-radius: 8px !important;
+}
+
+[data-testid="stTextInput"] input::placeholder {
+    color: rgba(244,239,227,0.65) !important;
+}
+
+/* Scritta a destra tipo "Press Enter to apply" */
+[data-testid="stTextInput"] div[data-baseweb="input"] * {
+    color: #f4efe3 !important;
+}
+
+    /* ============================================================
+   BLACK SIDEBAR MENU
+============================================================ */
+
+    [data-testid="stSidebar"] {
+        background-color: #171717 !important;
+    }
+
+    [data-testid="stSidebar"] > div {
+        background-color: #171717 !important;
+    }
+
+    [data-testid="stSidebar"] * {
         color: #f4efe3 !important;
-        caret-color: #f4efe3 !important;
-        border: 2px solid #b88a2e !important;
-        border-radius: 4px !important;
+    }
+
+    /* Titolo Menu */
+    [data-testid="stSidebar"] h2 {
+        color: #b88a2e !important;
+    }
+
+    /* Bottoni del menu laterale */
+    [data-testid="stSidebar"] div.stButton {
+        margin-bottom: 18px !important;
+    }
+
+    [data-testid="stSidebar"] div.stButton > button {
+        background-color: #171717 !important;
+        color: #f4efe3 !important;
+        border: 1.5px solid #f4efe3 !important;
+        border-radius: 0px !important;
         font-family: 'Roboto Mono', monospace !important;
+        font-size: 13px !important;
+        padding: 18px 10px !important;
+        min-height: 54px !important;
+        box-shadow: none !important;
     }
 
-    [data-testid="stTextInput"] input::placeholder {
-        color: rgba(244,239,227,0.65) !important;
+    /* Testo dentro i bottoni */
+    [data-testid="stSidebar"] div.stButton > button * {
+        color: #f4efe3 !important;
     }
 
-    [data-testid="stTextInput"] div {
-        background-color: #20232b !important;
+    /* Hover bottoni */
+    [data-testid="stSidebar"] div.stButton > button:hover {
+        background-color: #f4efe3 !important;
+        color: #171717 !important;
+        border-color: #b88a2e !important;
+        box-shadow: 4px 4px 0px #b88a2e !important;
+    }
+
+    [data-testid="stSidebar"] div.stButton > button:hover * {
+        color: #171717 !important;
+    }
+
+    /* Linea divisoria */
+    [data-testid="stSidebar"] hr {
+        border-color: rgba(244,239,227,0.35) !important;
     }
 
     </style>
@@ -986,6 +1123,7 @@ def safe_js(value):
         .replace("`", "\\`")
         .replace("${", "\\${")
         .replace("\n", " ")
+        .replace('"', '&quot;')
     )
 
 
@@ -1096,6 +1234,54 @@ def noc_flag_html(noc, height=34):
 
     return '<span style="margin-right:12px;">🏳️</span>'
 @st.cache_data(show_spinner=False)
+def noc_flag_url(noc):
+    noc = str(noc).upper().strip()
+
+    noc_to_country = {
+        "USA": "us",
+        "FRA": "fr",
+        "GBR": "gb",
+        "ITA": "it",
+        "SWE": "se",
+        "GER": "de",
+        "FRG": "de",
+        "GDR": "de",
+        "GRE": "gr",
+        "ESP": "es",
+        "NED": "nl",
+        "BEL": "be",
+        "SUI": "ch",
+        "CAN": "ca",
+        "AUS": "au",
+        "JPN": "jp",
+        "CHN": "cn",
+        "KOR": "kr",
+        "BRA": "br",
+        "RUS": "ru",
+        "HUN": "hu",
+        "POL": "pl",
+        "ROU": "ro",
+        "DEN": "dk",
+        "FIN": "fi",
+        "NOR": "no",
+        "AUT": "at",
+        "MEX": "mx",
+        "CUB": "cu",
+        "JAM": "jm",
+        "KEN": "ke",
+        "ETH": "et",
+        "RSA": "za",
+    }
+
+    if noc == "URS":
+        return "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Flag_of_the_Soviet_Union.svg/120px-Flag_of_the_Soviet_Union.svg.png"
+
+    country_code = noc_to_country.get(noc)
+
+    if country_code:
+        return f"https://flagcdn.com/h120/{country_code}.png"
+
+    return None
 def filter_era_data(df, df_medals, era):
     start_year, end_year = era_range(era)
 
@@ -1168,34 +1354,69 @@ def build_sport_stats_for_rings(period_df):
             .rename(columns={"NOC": "top_country"})
         )
 
+    # --- CALCOLO DEL MIGLIOR ATLETA CON REGOLE TIE-BREAK ---
+    if period_df[medals_mask].empty:
+        best_athlete_table = pd.DataFrame(columns=["Sport", "best_athlete"])
+    else:
+        athlete_medals = (
+            period_df[medals_mask]
+            .groupby(['Sport', 'Name', 'Medal'])
+            .size()
+            .unstack(fill_value=0)
+        )
+        for m in ['Gold', 'Silver', 'Bronze']:
+            if m not in athlete_medals.columns:
+                athlete_medals[m] = 0
+        athlete_medals = athlete_medals.reset_index()
+        
+        athlete_medals_sorted = athlete_medals.sort_values(
+            by=['Sport', 'Gold', 'Silver', 'Bronze', 'Name'],
+            ascending=[True, False, False, False, True]
+        )
+        best_athlete_table = (
+            athlete_medals_sorted
+            .drop_duplicates(subset=['Sport'])
+            .rename(columns={"Name": "best_athlete"})
+        )
+
     merged = (
         base_stats
         .merge(medal_stats, on="Sport", how="left")
         .merge(
-            top_country_table[["Sport", "top_country", "top_country_medals"]],
+            top_country_table[["Sport", "top_country"]],
+            on="Sport",
+            how="left"
+        )
+        .merge(
+            best_athlete_table[["Sport", "best_athlete"]],
             on="Sport",
             how="left"
         )
     )
-
     merged["medals"] = merged["medals"].fillna(0).astype(int)
     merged["top_country"] = merged["top_country"].fillna("No medals")
-    merged["top_country_medals"] = merged["top_country_medals"].fillna(0).astype(int)
-
+    merged["best_athlete"] = merged["best_athlete"].fillna("Nessun atleta")
     merged = merged[merged["Sport"].isin(sports_to_show)]
-
+    
     sport_stats = {}
-
     for _, row in merged.iterrows():
         sport = row["Sport"]
-
+        noc_str = str(row["top_country"])
+        
+        # Se non ci sono medaglie mostriamo solo il testo, altrimenti aggiungiamo la bandiera
+        if noc_str == "No medals":
+            top_country_display = "No medals"
+        else:
+            # Impostiamo l'altezza della bandiera a 16px per farla stare bene nella riga del testo
+            top_country_display = f"{noc_flag_html(noc_str, height=16)}{noc_str}"
+            
         sport_stats[sport] = {
             "icon": sport_emoji(sport),
             "disciplines": int(row["disciplines"]),
             "athletes": int(row["athletes"]),
             "medals": int(row["medals"]),
-            "top_country": str(row["top_country"]),
-            "top_country_medals": int(row["top_country_medals"]),
+            "top_country": top_country_display, # Salviamo il testo comprensivo di codice della bandiera
+            "best_athlete": str(row["best_athlete"]),
         }
 
     return sports_to_show, sport_stats
@@ -1354,10 +1575,36 @@ def intro():
 def era_controls():
     st.markdown('<div class="section-kicker">Select Era</div>', unsafe_allow_html=True)
 
+    era_context = {
+        "1896-1936": "Before World War II",
+        "1937-1976": "Post-war expansion",
+        "1977-2016": "Modern global Games",
+        "ALL": "Full archive"
+    }
+
     cols = st.columns(len(ERAS))
 
     for col, era in zip(cols, ERAS):
         with col:
+            st.html(
+                f"""
+                <div style="
+                    text-align: center;
+                    min-height: 28px;
+                    margin-bottom: 2px;
+                ">
+                    <div style="
+                        font-family: 'Playfair Display', serif;
+                        font-size: 23px;
+                        color: #171717;
+                        line-height: 1;
+                    ">
+                        {era_context[era]}
+                    </div>
+                </div>
+                """
+            )
+
             if st.session_state.era == era:
                 st.markdown(
                     f'<div class="active-era">{era_label(era)}</div>',
@@ -1672,6 +1919,17 @@ def olympic_podium_and_medal_wall(filtered_medals_df, selected_year):
             unsafe_allow_html=True
         )
 
+
+def fixed_opening_image(image_path, size=(900, 430)):
+    img = Image.open(image_path).convert("RGB")
+    img = ImageOps.fit(
+        img,
+        size,
+        method=Image.Resampling.LANCZOS,
+        centering=(0.5, 0.5)
+    )
+    return img
+
 # ============================================================
 # OPENING CEREMONY COMPARISON
 # ============================================================
@@ -1709,7 +1967,10 @@ def opening_ceremony_comparison():
         )
 
         if image_1896.exists():
-            st.image(str(image_1896), width="stretch")
+            st.image(
+                fixed_opening_image(image_1896),
+                width="stretch"
+            )
         else:
             st.warning("Missing image: images/opening_1896.jpg")
 
@@ -1739,7 +2000,10 @@ def opening_ceremony_comparison():
         )
 
         if image_2016.exists():
-            st.image(str(image_2016), width="stretch")
+            st.image(
+                fixed_opening_image(image_2016),
+                width="stretch"
+            )
         else:
             st.warning("Missing image: images/opening_2016.jpg")
 
@@ -1756,6 +2020,241 @@ def opening_ceremony_comparison():
             """,
             unsafe_allow_html=True
         )
+# ============================================================
+# OLYMPIC EVOLUTION CHART
+# ============================================================
+
+def olympic_evolution_chart(df):
+    st.markdown(
+        """
+        <div class="paper-panel">
+            <div class="panel-title-row">
+                <h2 class="panel-title">Olympic Data Stories</h2>
+                <span class="stamp">Combined Insights</span>
+            </div>
+            <p class="italic-desc">
+                These charts combine multiple dimensions of the Olympic dataset to reveal hidden patterns in Olympic history.
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    chart_type = st.radio(
+        "Choose a complex data story",
+        [
+            "Olympic Complexity Map",
+            "Gender Balance by Sport Across Eras"
+        ],
+        horizontal=True
+    )
+
+    # ============================================================
+    # 1. OLYMPIC COMPLEXITY MAP
+    # ============================================================
+
+    if chart_type == "Olympic Complexity Map":
+        chart_df = (
+            df.groupby(["Year", "City"])
+            .agg(
+                Athletes=("ID", "nunique"),
+                Athlete_entries=("ID", "count"),
+                Nations=("NOC", "nunique"),
+                Sports=("Sport", "nunique"),
+                Events=("Event", "nunique")
+            )
+            .reset_index()
+            .sort_values("Year")
+        )
+
+        fig = px.scatter(
+            chart_df,
+            x="Year",
+            y="Athletes",
+            size="Nations",
+            color="Events",
+            hover_name="City",
+            hover_data={
+                "Year": True,
+                "Athletes": True,
+                "Athlete_entries": True,
+                "Nations": True,
+                "Sports": True,
+                "Events": True
+            },
+            title="How did the Olympic Games become larger and more complex?"
+        )
+
+        fig.update_traces(
+            marker=dict(
+                opacity=0.82,
+                line=dict(
+                    color="#171717",
+                    width=1.4
+                )
+            )
+        )
+
+        fig = apply_plotly_theme(fig, height=580)
+
+        fig.update_layout(
+            xaxis_title="Olympic Year",
+            yaxis_title="Number of athletes",
+            coloraxis_colorbar=dict(
+                title="Events"
+            )
+        )
+
+        st.plotly_chart(fig, width="stretch")
+
+        st.markdown(
+            """
+            <div style="text-align: right; font-size: 14px; color: var(--muted); margin-top: -20px; padding-right: 15px; margin-bottom: 25px;">
+                ◍ <i>The size of the bubble indicates the number of participating <b>Nations</b></i>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+    # ============================================================
+    # 2. GENDER BALANCE BY SPORT ACROSS ERAS
+    # ============================================================
+
+    elif chart_type == "Gender Balance by Sport Across Eras":
+        gender_df = df.copy()
+
+        def assign_era(year):
+            if year <= 1936:
+                return "1896–1936"
+            elif year <= 1976:
+                return "1937–1976"
+            else:
+                return "1977–2016"
+
+        gender_df["Era"] = gender_df["Year"].apply(assign_era)
+
+        # Keep the most represented sports to avoid overcrowding
+        top_sports = (
+            gender_df.groupby("Sport")["ID"]
+            .nunique()
+            .sort_values(ascending=False)
+            .head(16)
+            .index
+            .tolist()
+        )
+
+        gender_df = gender_df[gender_df["Sport"].isin(top_sports)].copy()
+
+        total_df = (
+            gender_df
+            .groupby(["Era", "Sport"])
+            .agg(
+                Total_athletes=("ID", "nunique"),
+                Events=("Event", "nunique"),
+                Nations=("NOC", "nunique")
+            )
+            .reset_index()
+        )
+
+        women_df = (
+            gender_df[gender_df["Sex"].astype(str).str.upper().isin(["F", "FEMALE"])]
+            .groupby(["Era", "Sport"])["ID"]
+            .nunique()
+            .reset_index(name="Women_athletes")
+        )
+
+        chart_df = total_df.merge(
+            women_df,
+            on=["Era", "Sport"],
+            how="left"
+        )
+
+        chart_df["Women_athletes"] = chart_df["Women_athletes"].fillna(0)
+
+        era_order = ["1896–1936", "1937–1976", "1977–2016"]
+        chart_df["Era"] = pd.Categorical(
+            chart_df["Era"],
+            categories=era_order,
+            ordered=True
+        )
+
+        chart_df = chart_df.sort_values(["Sport", "Era"])
+
+        # Elegant external title
+        st.markdown(
+            """
+            <div style="
+                font-family: 'Playfair Display', serif;
+                font-size: 38px;
+                line-height: 1.05;
+                color: #171717;
+                margin-top: 28px;
+                margin-bottom: 8px;
+            ">
+                How did female participation change across Olympic sports?
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        fig = px.scatter(
+            chart_df,
+            x="Era",
+            y="Sport",
+            size="Women_athletes",
+            color="Women_athletes",
+            size_max=28,
+            color_continuous_scale=[
+                [0.0, "#f7c6d9"],
+                [0.5, "#d17be3"],
+                [1.0, "#6f2dbd"]
+            ],
+            custom_data=["Women_athletes"],
+            title=None
+        )
+
+        fig.update_traces(
+            marker=dict(
+                opacity=0.82,
+                line=dict(
+                    color="#171717",
+                    width=1.1
+                )
+            ),
+            hovertemplate=
+                "<b>Era:</b> %{x}<br>" +
+                "<b>Sport:</b> %{y}<br>" +
+                "<b>Women athletes:</b> %{marker.size}<extra></extra>"
+        )
+        fig = apply_plotly_theme(fig, height=680)
+
+        fig.update_layout(
+            title=None,
+            xaxis_title="Olympic era",
+            yaxis_title="Sport",
+            margin=dict(l=90, r=155, t=55, b=70),
+            showlegend=False,
+            coloraxis_colorbar=dict(
+                title="Women athletes",
+                x=1.02,
+                y=0.50,
+                len=0.78,
+                thickness=18
+            )
+        )
+
+        st.plotly_chart(fig, width="stretch")
+
+        st.markdown(
+            """
+            <div style="text-align: right; font-size: 14px; color: var(--muted); margin-top: -20px; padding-right: 15px; margin-bottom: 25px;">
+                ◍ <i>The size of the bubble remarks the number of women athletes</i>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        
+
+        
 # ============================================================
 # YEAR EXPLORER PAGE
 # ============================================================
@@ -1977,7 +2476,7 @@ def year_archive_explorer(df, df_medals):
             )
 
             fig.update_traces(
-                marker_color="#171717",
+                marker_color="#b88a2e",
                 marker_line_color="#171717",
                 marker_line_width=1.2,
                 textposition="outside",
@@ -2239,6 +2738,7 @@ def olympic_rings(period_df, era):
     <!DOCTYPE html>
     <html>
     <head>
+    <meta charset="UTF-8">
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@700&family=Space+Mono&display=swap');
     body {{
@@ -2426,19 +2926,19 @@ def olympic_rings(period_df, era):
         athletes_count = sport_stats[sport]["athletes"]
         medals_count = sport_stats[sport]["medals"]
         top_country = sport_stats[sport]["top_country"]
-        top_country_medals = sport_stats[sport]["top_country_medals"]
-        
+        best_athlete = sport_stats[sport]["best_athlete"]
+
         rings_html += f"""
         <button class="sport-badge"
         onclick="openSportInfo(
-            `{safe_sport_js}`, `{safe_js(icon)}`, `{disciplines_count}`,
-            `{athletes_count}`, `{medals_count}`, `{safe_js(top_country)}`,
-            `{top_country_medals}`
+        `{safe_sport_js}`, `{safe_js(icon)}`, `{disciplines_count}`,
+        `{athletes_count}`, `{medals_count}`, `{safe_js(top_country)}`,
+        `{safe_js(best_athlete)}`
         )"
         title="{safe_sport_html}"
         style="left:{x}px; top:{y}px;">
-            {icon}
-            <span class="sport-tooltip">{safe_sport_html}</span>
+        {icon}
+        <span class="sport-tooltip">{safe_sport_html}</span>
         </button>
         """
         
@@ -2451,31 +2951,36 @@ def olympic_rings(period_df, era):
         <div class="info-row"><div class="info-label">ATHLETES</div><div id="infoAthletes" class="info-value">-</div></div>
         <div class="info-row"><div class="info-label">TOTAL MEDAL ENTRIES</div><div id="infoMedals" class="info-value">-</div></div>
         <div class="info-row"><div class="info-label">BEST COUNTRY</div><div id="infoCountry" class="info-value">-</div></div>
-        <div class="info-row"><div class="info-label">UNIQUE MEDALS</div><div id="infoCountryMedals" class="info-value">-</div></div>
-    </div>
-    <div class="instruction">HOVER A BADGE TO READ ITS SPORT · CLICK TO OPEN THE DISPATCH</div>
-    </div>
-    
-    <script>
-    function openSportInfo(sport, icon, disciplines, athletes, medals, country, countryMedals) {{
-        document.getElementById("infoPanel").classList.add("show");
-        document.getElementById("infoTitle").innerHTML = icon + " " + sport;
-        document.getElementById("infoDisciplines").innerHTML = disciplines;
-        document.getElementById("infoAthletes").innerHTML = athletes;
-        document.getElementById("infoMedals").innerHTML = medals;
-        document.getElementById("infoCountry").innerHTML = country;
-        document.getElementById("infoCountryMedals").innerHTML = countryMedals;
-    }}
-    function closeSportInfo() {{
-        document.getElementById("infoPanel").classList.remove("show");
-    }}
-    </script>
-    </body>
-    </html>
+  <div class="info-row"><div class="info-label">BEST ATHLETE</div><div id="infoBestAthlete" class="info-value">-</div></div>
+        </div>
+        <div class="instruction">HOVER A BADGE TO READ ITS SPORT · CLICK TO OPEN THE DISPATCH</div>
+        </div>
+
+        <script>
+        function openSportInfo(sport, icon, disciplines, athletes, medals, country, bestAthlete) {{
+            document.getElementById("infoPanel").classList.add("show");
+            document.getElementById("infoTitle").innerHTML = icon + " " + sport;
+            document.getElementById("infoDisciplines").innerHTML = disciplines;
+            document.getElementById("infoAthletes").innerHTML = athletes;
+            document.getElementById("infoMedals").innerHTML = medals;
+            document.getElementById("infoCountry").innerHTML = country;
+            document.getElementById("infoBestAthlete").innerHTML = bestAthlete;
+        }}
+        function closeSportInfo() {{
+            document.getElementById("infoPanel").classList.remove("show");
+        }}
+        </script>
     """
     
-    import streamlit.components.v1 as components
-    components.html(rings_html, height=700)
+    encoded_html = base64.b64encode(
+        rings_html.encode("utf-8")
+    ).decode("utf-8")
+
+    st.iframe(
+        src=f"data:text/html;charset=utf-8;base64,{encoded_html}",
+        height=700,
+        width="stretch"
+    )
 
 # ============================================================
 # ATHLETE EXPLORER
@@ -2632,28 +3137,30 @@ def athlete_race(df_medals):
         <div class="paper-panel">
             <div class="panel-title-row">
                 <h2 class="panel-title">The Great Race · Athletes</h2>
-                <span class="stamp">Cumulative Medal Race</span>
+                <span class="stamp">Athlete Profile Radar</span>
             </div>
+            <p class="italic-desc">
+                Compare two Olympic athletes through a multi-dimensional career profile.
+            </p>
         </div>
         """,
         unsafe_allow_html=True
     )
 
     available_sports = sorted(df_medals["Sport"].dropna().unique().tolist())
+
     selected_sport = st.selectbox(
         "Filter by Sport",
-        options=["All Sports"] + available_sports,
-        index=0
+        options=available_sports,
+        index=available_sports.index("Tennis") if "Tennis" in available_sports else 0
     )
 
-    if selected_sport != "All Sports":
-        filtered_medals = df_medals[df_medals["Sport"] == selected_sport].copy()
-    else:
-        filtered_medals = df_medals.copy()
+    filtered_medals = df_medals[df_medals["Sport"] == selected_sport].copy()
 
     athlete_stats = build_athlete_stats(filtered_medals)
 
     top_athletes = athlete_stats.head(40).copy()
+
     options = [
         f'{row["Name"]} · {row["NOC"]} · {int(row["total"])} medals'
         for _, row in top_athletes.iterrows()
@@ -2674,95 +3181,366 @@ def athlete_race(df_medals):
     athlete_a_name = top_athletes.iloc[options.index(athlete_a_label)]["Name"]
     athlete_b_name = top_athletes.iloc[options.index(athlete_b_label)]["Name"]
 
-    athlete_year_counts = (
-        filtered_medals[filtered_medals["Name"].isin([athlete_a_name, athlete_b_name])]
-        .groupby(["Year", "Name"])
-        .size()
-        .reset_index(name="Medals")
-        .sort_values("Year")
+    def get_radar_metrics(athlete_name):
+        athlete_df = filtered_medals[
+            filtered_medals["Name"] == athlete_name
+        ].copy()
+
+        athlete_df = athlete_df.drop_duplicates(
+            subset=["Year", "Sport", "Event", "Medal", "Name"]
+        )
+
+        if athlete_df.empty:
+            return {
+                "Gold medals": 0,
+                "Silver medals": 0,
+                "Bronze medals": 0,
+                "Total medals": 0,
+                "Olympic editions": 0,
+                "Events medalled": 0,
+                "Career span": 0,
+                "Medals per edition": 0
+            }
+
+        gold = int((athlete_df["Medal"] == "Gold").sum())
+        silver = int((athlete_df["Medal"] == "Silver").sum())
+        bronze = int((athlete_df["Medal"] == "Bronze").sum())
+        total = int(len(athlete_df))
+
+        editions = int(athlete_df["Year"].nunique())
+        events_medalled = int(athlete_df["Event"].nunique())
+
+        years = sorted(athlete_df["Year"].dropna().unique())
+
+        if len(years) > 1:
+            career_span = int(max(years) - min(years))
+        else:
+            career_span = 0
+
+        medals_per_edition = round(total / editions, 2) if editions > 0 else 0
+
+        return {
+            "Gold medals": gold,
+            "Silver medals": silver,
+            "Bronze medals": bronze,
+            "Total medals": total,
+            "Olympic editions": editions,
+            "Events medalled": events_medalled,
+            "Career span": career_span,
+            "Medals per edition": medals_per_edition
+        }
+
+    metrics_a = get_radar_metrics(athlete_a_name)
+    metrics_b = get_radar_metrics(athlete_b_name)
+
+    categories = list(metrics_a.keys())
+
+    actual_a = [metrics_a[metric] for metric in categories]
+    actual_b = [metrics_b[metric] for metric in categories]
+
+    max_values = [
+        max(value_a, value_b, 1)
+        for value_a, value_b in zip(actual_a, actual_b)
+    ]
+
+    normalized_a = [
+        (value / max_value) * 100
+        for value, max_value in zip(actual_a, max_values)
+    ]
+
+    normalized_b = [
+        (value / max_value) * 100
+        for value, max_value in zip(actual_b, max_values)
+    ]
+
+    categories_closed = categories + [categories[0]]
+    normalized_a_closed = normalized_a + [normalized_a[0]]
+    normalized_b_closed = normalized_b + [normalized_b[0]]
+    actual_a_closed = actual_a + [actual_a[0]]
+    actual_b_closed = actual_b + [actual_b[0]]
+
+    radar_fig = go.Figure()
+
+    radar_fig.add_trace(
+        go.Scatterpolar(
+            r=normalized_a_closed,
+            theta=categories_closed,
+            mode="lines+markers",
+            fill="toself",
+            name=athlete_a_name,
+            customdata=actual_a_closed,
+            line=dict(
+                color="#171717",
+                width=3,
+                dash="solid"
+            ),
+            marker=dict(
+                color="#f4efe3",
+                size=12,
+                symbol="circle-open",
+                line=dict(
+                    color="#171717",
+                    width=2.5
+                )
+            ),
+            fillcolor="rgba(23, 23, 23, 0.08)",
+            hovertemplate=
+                "<b>%{fullData.name}</b><br>" +
+                "%{theta}<br>" +
+                "Real value: %{customdata}<extra></extra>"
+        )
     )
 
-    years = sorted(filtered_medals["Year"].dropna().unique())
-    rows = []
+    radar_fig.add_trace(
+        go.Scatterpolar(
+            r=normalized_b_closed,
+            theta=categories_closed,
+            mode="lines+markers",
+            fill="toself",
+            name=athlete_b_name,
+            customdata=actual_b_closed,
+            line=dict(
+                color="#b88a2e",
+                width=3,
+                dash="dash"
+            ),
+            marker=dict(
+                color="#b88a2e",
+                size=13,
+                symbol="x",
+                line=dict(
+                    color="#b88a2e",
+                    width=2.5
+                )
+            ),
+            fillcolor="rgba(184, 138, 46, 0.08)",
+            hovertemplate=
+                "<b>%{fullData.name}</b><br>" +
+                "%{theta}<br>" +
+                "Real value: %{customdata}<extra></extra>"
+        )
+    )
 
-    for athlete in [athlete_a_name, athlete_b_name]:
-        sub = athlete_year_counts[athlete_year_counts["Name"] == athlete]
-        medal_by_year = dict(zip(sub["Year"], sub["Medals"]))
+    radar_title = f"Athlete Profile Radar · {selected_sport}"
 
-        cumulative = 0
-        for year in years:
-            cumulative += medal_by_year.get(year, 0)
-            rows.append(
-                {
-                    "Year": year,
-                    "Athlete": athlete,
-                    "Cumulative medals": cumulative
-                }
+    radar_fig.update_layout(
+        title=radar_title,
+        height=650,
+        paper_bgcolor="#f4efe3",
+        plot_bgcolor="#f4efe3",
+        font=dict(
+            family="Roboto Mono",
+            color="#171717"
+        ),
+        polar=dict(
+            bgcolor="#f4efe3",
+            radialaxis=dict(
+                visible=True,
+                range=[0, 100],
+                tickvals=[25, 50, 75, 100],
+                ticktext=["25", "50", "75", "100"],
+                gridcolor="rgba(23,23,23,0.25)",
+                linecolor="#171717",
+                tickfont=dict(color="#171717")
+            ),
+            angularaxis=dict(
+                gridcolor="rgba(23,23,23,0.25)",
+                linecolor="#171717",
+                tickfont=dict(
+                    color="#171717",
+                    size=12
+                )
             )
-
-    chart_df = pd.DataFrame(rows)
-
-    chart_title = "Cumulative Medal Race"
-    if selected_sport != "All Sports":
-        chart_title += f" · {selected_sport}"
-
-    fig = px.line(
-        chart_df,
-        x="Year",
-        y="Cumulative medals",
-        color="Athlete",
-        color_discrete_map={
-            athlete_a_name: "#171717", 
-            athlete_b_name: "#171717"
-        },
-        line_dash="Athlete",       
-        symbol="Athlete",          
-        symbol_map={
-            athlete_a_name: "circle",   
-            athlete_b_name: "diamond"  
-        },
-        markers=True,
-        title=chart_title
+        ),
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.05,
+            xanchor="center",
+            x=0.5,
+            font=dict(color="#171717")
+        ),
+        margin=dict(l=80, r=80, t=110, b=60)
     )
-    
-    fig.update_traces(marker=dict(size=8))
 
-    fig = apply_plotly_theme(fig, height=460)
-    st.plotly_chart(fig, width="stretch")
+    st.plotly_chart(radar_fig, width="stretch")
+
+    comparison_df = pd.DataFrame(
+        {
+            "Metric": categories,
+            athlete_a_name: actual_a,
+            athlete_b_name: actual_b
+        }
+    )
+
+    st.markdown(
+        """
+        <div class="medal-detail-card">
+            <div class="medal-detail-title">How to read this radar</div>
+            <div class="medal-detail-text">
+                Each axis represents one Olympic career dimension. The radar values are normalized from 0 to 100
+                between the two selected athletes. When both athletes have the same value, their points overlap;
+                this is why one athlete is shown with an open circle and the other with a golden X.
+                The table below reports the real values.
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    table_rows = ""
+
+    for _, row in comparison_df.iterrows():
+        value_a = row[athlete_a_name]
+        value_b = row[athlete_b_name]
+
+        if isinstance(value_a, float) and value_a.is_integer():
+            value_a = int(value_a)
+
+        if isinstance(value_b, float) and value_b.is_integer():
+            value_b = int(value_b)
+
+        table_rows += f"""
+         <tr>
+            <td>{html.escape(str(row["Metric"]))}</td>
+            <td>{html.escape(str(value_a))}</td>
+            <td>{html.escape(str(value_b))}</td>
+        </tr>
+        """
+
+    st.html(
+        f"""
+        <style>
+            .radar-table-wrapper {{
+                max-width: 900px;
+                margin: 18px auto 34px auto;
+                border: 1.5px solid #171717;
+                background: #171717;
+                box-shadow: 5px 5px 0px #b88a2e;
+            }}
+
+            .radar-table {{
+                width: 100%;
+                border-collapse: collapse;
+                font-family: 'Roboto Mono', monospace;
+                background: #171717;
+                color: #f4efe3;
+                font-size: 12px;
+            }}
+
+            .radar-table th {{
+                color: #f4efe3 !important;
+                background: #171717 !important;
+                border-bottom: 1.5px solid #f4efe3;
+                border-right: 1px solid rgba(244,239,227,0.35);
+                padding: 10px 12px;
+                text-align: left;
+                font-weight: 600;
+                letter-spacing: 0.04em;
+            }}
+
+            .radar-table td {{
+                color: #f4efe3 !important;
+                background: #171717 !important;
+                border-bottom: 1px solid rgba(244,239,227,0.22);
+                border-right: 1px solid rgba(244,239,227,0.22);
+                padding: 9px 12px;
+                text-align: left;
+            }}
+
+            .radar-table td:not(.radar-metric) {{
+                text-align: center;
+                font-weight: 600;
+            }}
+
+            .radar-table tr:last-child td {{
+                border-bottom: none;
+            }}
+
+            .radar-table th:last-child,
+            .radar-table td:last-child {{
+                border-right: none;
+            }}
+
+            .radar-table-title {{
+                font-family: 'Playfair Display', serif;
+                font-size: 26px;
+                color: #f4efe3;
+                padding: 14px 16px 4px 16px;
+            }}
+
+            .radar-table-subtitle {{
+                font-family: 'Roboto Mono', monospace;
+                font-size: 10px;
+                letter-spacing: 0.18em;
+                text-transform: uppercase;
+                color: #b88a2e;
+                padding: 0 16px 12px 16px;
+            }}
+        </style>
+
+        <div class="radar-table-wrapper">
+            <div class="radar-table-title">Real values</div>
+            <div class="radar-table-subtitle">Radar metrics comparison</div>
+
+            <table class="radar-table">
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>{html.escape(str(athlete_a_name))}</th>
+                        <th>{html.escape(str(athlete_b_name))}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {table_rows}
+                </tbody>
+            </table>
+        </div>
+        """
+    )
+
 
 
 # ============================================================
 # NATION DUEL
 # ============================================================
+# ============================================================
+# NATION DUEL
+# ============================================================
 
 def nation_duel(df_medals):
-    medal_by_year_noc = (
-        df_medals
-        .groupby(["Year", "NOC"])
-        .size()
-        .reset_index(name="Medals")
-    )
-
-    top_nocs = (
-        df_medals
-        .groupby("NOC")
-        .size()
-        .sort_values(ascending=False)
-        .head(30)
-        .index
-        .tolist()
-    )
-
     st.markdown(
         """
         <div class="paper-panel">
             <div class="panel-title-row">
                 <h2 class="panel-title">The Great Duel · Nations</h2>
-                <span class="stamp">Cumulative Medal Race</span>
+                <span class="stamp">Beyond the Medal Table</span>
             </div>
+            <p class="italic-desc">
+                Compare two Olympic nations through edition rivalry, sport-by-sport dominance and national medal profiles.
+            </p>
         </div>
         """,
         unsafe_allow_html=True
+    )
+
+    unique_medals = (
+        df_medals
+        .drop_duplicates(subset=["Year", "Sport", "Event", "Medal", "NOC"])
+        .copy()
+    )
+
+    if unique_medals.empty:
+        st.info("No medal data available.")
+        return
+
+    top_nocs = (
+        unique_medals
+        .groupby("NOC")
+        .size()
+        .sort_values(ascending=False)
+        .head(35)
+        .index
+        .tolist()
     )
 
     if len(top_nocs) < 2:
@@ -2775,138 +3553,739 @@ def nation_duel(df_medals):
         nation_a = st.selectbox(
             "Nation A",
             top_nocs,
-            index=top_nocs.index("USA") if "USA" in top_nocs else 0
+            index=top_nocs.index("USA") if "USA" in top_nocs else 0,
+            key="select_nation_a"
         )
 
     with col2:
         nation_b = st.selectbox(
             "Nation B",
             top_nocs,
-            index=top_nocs.index("URS") if "URS" in top_nocs else min(1, len(top_nocs) - 1)
+            index=top_nocs.index("URS") if "URS" in top_nocs else min(1, len(top_nocs) - 1),
+            key="select_nation_b"
         )
 
-    years = sorted(df_medals["Year"].dropna().unique())
-    rows = []
+    if nation_a == nation_b:
+        st.warning("Please select two different nations.")
+        return
 
-    for nation in [nation_a, nation_b]:
-        sub = medal_by_year_noc[medal_by_year_noc["NOC"] == nation]
-        medal_by_year = dict(zip(sub["Year"], sub["Medals"]))
+    duel_df = unique_medals[unique_medals["NOC"].isin([nation_a, nation_b])].copy()
 
-        cumulative = 0
-        for year in years:
-            cumulative += medal_by_year.get(year, 0)
-            rows.append(
-                {
-                    "Year": year,
-                    "Nation": nation,
-                    "Cumulative medals": cumulative
-                }
+    # ============================================================
+    # SUMMARY FUNCTION
+    # ============================================================
+
+    def nation_summary(noc):
+        sub = duel_df[duel_df["NOC"] == noc].copy()
+
+        total = len(sub)
+        gold = int((sub["Medal"] == "Gold").sum())
+        silver = int((sub["Medal"] == "Silver").sum())
+        bronze = int((sub["Medal"] == "Bronze").sum())
+        sports = int(sub["Sport"].nunique())
+        editions = int(sub["Year"].nunique())
+
+        if not sub.empty:
+            best_edition = int(sub.groupby("Year").size().max())
+        else:
+            best_edition = 0
+
+        medals_per_edition = total / editions if editions > 0 else 0
+        gold_efficiency = gold / total if total > 0 else 0
+
+        top3_sports_medals = (
+            sub.groupby("Sport")
+            .size()
+            .sort_values(ascending=False)
+            .head(3)
+            .sum()
+        )
+
+        specialization_index = top3_sports_medals / total if total > 0 else 0
+
+        return {
+            "total": total,
+            "gold": gold,
+            "silver": silver,
+            "bronze": bronze,
+            "sports": sports,
+            "editions": editions,
+            "best_edition": best_edition,
+            "medals_per_edition": medals_per_edition,
+            "gold_efficiency": gold_efficiency,
+            "specialization_index": specialization_index
+        }
+
+    summary_a = nation_summary(nation_a)
+    summary_b = nation_summary(nation_b)
+
+    # ============================================================
+    # SUMMARY METRICS
+    # ============================================================
+
+    c1, c2, c3, c4 = st.columns(4)
+
+    c1.metric(f"{nation_a} medals", summary_a["total"])
+    c2.metric(f"{nation_b} medals", summary_b["total"])
+
+    if summary_a["total"] >= summary_b["total"]:
+        ahead_nation = nation_a
+    else:
+        ahead_nation = nation_b
+
+    c3.metric(
+        "Medal gap",
+        abs(summary_a["total"] - summary_b["total"]),
+        delta=f"{ahead_nation} ahead"
+    )
+
+    if summary_a["sports"] >= summary_b["sports"]:
+        broader_nation = nation_a
+    else:
+        broader_nation = nation_b
+
+    flag_url = noc_flag_url(broader_nation)
+
+    with c4:
+        st.caption("Broader nation")
+
+        if flag_url:
+            st.image(flag_url, width=76)
+        else:
+            st.markdown(f"### {broader_nation}")
+
+        st.success("↑ More medal-winning sports")
+    chart_choice = st.radio(
+        "Choose the nation comparison view",
+        [
+            "Edition-by-edition rivalry",
+            "Sport-by-sport duel",
+            "National profile radar"
+        ],
+        horizontal=True
+    )
+
+    # ============================================================
+    # 1. EDITION-BY-EDITION RIVALRY
+    # ============================================================
+
+    if chart_choice == "Edition-by-edition rivalry":
+        medals_by_year = (
+            duel_df
+            .groupby(["Year", "NOC"])
+            .size()
+            .reset_index(name="Medals")
+        )
+
+        pivot = medals_by_year.pivot(
+            index="Year",
+            columns="NOC",
+            values="Medals"
+        ).fillna(0)
+
+        for noc in [nation_a, nation_b]:
+            if noc not in pivot.columns:
+                pivot[noc] = 0
+
+        pivot = pivot.reset_index()
+        pivot["Medal gap"] = pivot[nation_a] - pivot[nation_b]
+
+        pivot["Winner"] = np.where(
+            pivot["Medal gap"] > 0,
+            nation_a,
+            np.where(
+                pivot["Medal gap"] < 0,
+                nation_b,
+                "Tie"
+            )
+        )
+
+        pivot["Gap label"] = pivot["Medal gap"].apply(
+            lambda x: f"{nation_a} +{int(x)}" if x > 0 else (
+                f"{nation_b} +{abs(int(x))}" if x < 0 else "Tie"
+            )
+        )
+
+        # Calcolo dinamico del colore in base al totale medaglie cumulative
+        color_a = "#b88a2e" if summary_a["total"] >= summary_b["total"] else "#c0c0c0"
+        color_b = "#b88a2e" if summary_b["total"] > summary_a["total"] else "#c0c0c0"
+
+        fig = px.bar(
+            pivot,
+            x="Year",
+            y="Medal gap",
+            color="Winner",
+            title=f"Who won each Olympic edition? · {nation_a} vs {nation_b}",
+            color_discrete_map={
+                nation_a: color_a,
+                nation_b: color_b,
+                "Tie": "#68645c"
+            },
+            hover_data={
+                nation_a: True,
+                nation_b: True,
+                "Medal gap": True,
+                "Winner": True
+            }
+        )
+
+        fig.update_traces(
+            marker_line_color="#171717",
+            marker_line_width=1.2
+            
+        )
+
+        fig.add_hline(
+            y=0,
+            line_width=2,
+            line_color="#171717"
+        )
+
+        fig = apply_plotly_theme(fig, height=560)
+
+        fig.update_layout(
+            xaxis_title="Olympic year",
+            yaxis_title=f"Medal gap ({nation_a} − {nation_b})",
+            legend_title_text="Edition winner",
+            bargap=0.25,
+            margin=dict(l=60, r=80, t=80, b=60)
+        )
+
+        st.plotly_chart(fig, width="stretch")
+
+        
+
+  
+
+        # ============================================================
+    # 2. SPORT-BY-SPORT DUEL · DUMBBELL CHART
+    # ============================================================
+
+    elif chart_choice == "Sport-by-sport duel":
+        sport_table = (
+            duel_df
+            .groupby(["Sport", "NOC"])
+            .size()
+            .reset_index(name="Medals")
+        )
+
+        pivot = sport_table.pivot(
+            index="Sport",
+            columns="NOC",
+            values="Medals"
+        ).fillna(0)
+
+        for noc in [nation_a, nation_b]:
+            if noc not in pivot.columns:
+                pivot[noc] = 0
+
+        pivot["Total medals"] = pivot[nation_a] + pivot[nation_b]
+        pivot["Difference"] = pivot[nation_a] - pivot[nation_b]
+        pivot["Abs difference"] = pivot["Difference"].abs()
+
+        plot_df = (
+            pivot
+            .sort_values("Total medals", ascending=False)
+            .head(18)
+            .reset_index()
+        )
+
+        plot_df = plot_df.sort_values("Total medals", ascending=True)
+        plot_df["Text A"] = plot_df[nation_a].astype(int).astype(str)
+        plot_df["Text B"] = plot_df[nation_b].astype(int).astype(str)
+
+        plot_df["Text position A"] = np.where(
+            plot_df[nation_a] >= plot_df[nation_b],
+            "middle right",
+            "middle left"
+        )
+
+        plot_df["Text position B"] = np.where(
+            plot_df[nation_b] >= plot_df[nation_a],
+            "middle right",
+            "middle left"
+        )
+
+        fig = go.Figure()
+
+        # Calcolo dinamico dei colori per i punti del dumbbell chart
+        color_a = "#b88a2e" if summary_a["total"] >= summary_b["total"] else "#c0c0c0"
+        color_b = "#b88a2e" if summary_b["total"] > summary_a["total"] else "#c0c0c0"
+
+        # Linee tra le due nazioni
+        for _, row in plot_df.iterrows():
+            fig.add_trace(
+                go.Scatter(
+                    x=[row[nation_a], row[nation_b]],
+                    y=[row["Sport"], row["Sport"]],
+                    mode="lines",
+                    line=dict(
+                        color="rgba(23,23,23,0.35)",
+                        width=3
+                    ),
+                    hoverinfo="skip",
+                    showlegend=False
+                )
             )
 
-    chart_df = pd.DataFrame(rows)
+        # Punti Nation A
+        fig.add_trace(
+            go.Scatter(
+                x=plot_df[nation_a],
+                y=plot_df["Sport"],
+                mode="markers+text",
+                name=nation_a,
+                text=plot_df["Text A"],
+                textposition=plot_df["Text position A"],
+                textfont=dict(
+                    color=color_a,
+                    size=11,
+                    family="Arial"
+                ),
+                marker=dict(
+                    size=16,
+                    color=color_a,
+                    line=dict(
+                        color="#171717",
+                        width=2
+                    )
+                ),
+                hovertemplate=
+                    "<b>%{y}</b><br>" +
+                    "Nazione: %{fullData.name}<br>" +
+                    "Medaglie: %{x}<extra></extra>"
+            )
+        )
 
-    fig = px.line(
-        chart_df,
-        x="Year",
-        y="Cumulative medals",
-        color="Nation",
-        color_discrete_map={
-            nation_a: "#171717", 
-            nation_b: "#171717"
-        },
-        line_dash="Nation",
-        symbol="Nation", 
-        symbol_map={
-            nation_a: "circle",   
-            nation_b: "diamond"   
-        },
-        markers=True,
-        title="Cumulative Nation Medal Race"
-    )
-    
-    fig.update_traces(marker=dict(size=8))
+        # Punti Nation B
+        fig.add_trace(
+            go.Scatter(
+                x=plot_df[nation_b],
+                y=plot_df["Sport"],
+                mode="markers+text",
+                name=nation_b,
+                text=plot_df["Text B"],
+                textposition=plot_df["Text position B"],
+                textfont=dict(
+                    color=color_b,
+                    size=11,
+                    family="Arial"
+                ),
+                marker=dict(
+                    size=16,
+                    color=color_b,
+                    line=dict(
+                        color="#171717",
+                        width=2
+                    )
+                ),
+                hovertemplate=
+                    "<b>" + nation_b + "</b><br>" +
+                    "Sport: %{y}<br>" +
+                    "Medals: %{x}<extra></extra>"
+            )
+        )
 
-    fig = apply_plotly_theme(fig, height=460)
-    st.plotly_chart(fig, width="stretch")
+        fig.update_layout(
+            title=dict(
+                text=f"Who dominates each Olympic sport? · {nation_a} vs {nation_b}",
+                    font=dict(
+                    family="Playfair Display",
+                    size=26,
+                    color="#171717"
+                ),
+                x=0,
+                    xanchor="left"
+            ),
 
 
+
+            height=680,
+            paper_bgcolor="#f4efe3",
+            plot_bgcolor="#f4efe3",
+            font=dict(
+                family="Roboto Mono",
+                color="#171717"
+            ),
+            xaxis=dict(
+                title="Medals in each sport",
+                gridcolor="rgba(23,23,23,0.18)",
+                linecolor="#171717",
+                zeroline=False,
+                tickfont=dict(color="#171717"),
+                title_font=dict(color="#171717")
+            ),
+            yaxis=dict(
+                title="Sport",
+                gridcolor="rgba(23,23,23,0.10)",
+                linecolor="#171717",
+                tickfont=dict(color="#171717"),
+                title_font=dict(color="#171717")
+            ),
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=1.03,
+                xanchor="center",
+                x=0.5,
+                font=dict(color="#171717")
+            ),
+            hoverlabel=dict(
+                bgcolor="#f4efe3",
+                bordercolor="#171717",
+                font=dict(
+                    family="Roboto Mono",
+                    size=13,
+                    color="#171717"
+                )
+            ),
+            margin=dict(l=130, r=90, t=95, b=60)
+        )
+
+        st.plotly_chart(fig, width="stretch")
+
+        
+    # ============================================================
+    # 3. NATIONAL PROFILE RADAR
+    # ============================================================
+
+    elif chart_choice == "National profile radar":
+        radar_metrics = {
+            "Total medals": (summary_a["total"], summary_b["total"]),
+            "Gold medals": (summary_a["gold"], summary_b["gold"]),
+            "Medal sports": (summary_a["sports"], summary_b["sports"]),
+            "Medal editions": (summary_a["editions"], summary_b["editions"]),
+            "Best edition": (summary_a["best_edition"], summary_b["best_edition"]),
+            "Medals / edition": (summary_a["medals_per_edition"], summary_b["medals_per_edition"]),
+            "Gold efficiency": (summary_a["gold_efficiency"], summary_b["gold_efficiency"]),
+            "Specialization": (summary_a["specialization_index"], summary_b["specialization_index"])
+        }
+
+        categories = list(radar_metrics.keys())
+
+        actual_a = [radar_metrics[m][0] for m in categories]
+        actual_b = [radar_metrics[m][1] for m in categories]
+
+        max_values = [
+            max(a, b, 1)
+            for a, b in zip(actual_a, actual_b)
+        ]
+
+        normalized_a = [
+            (a / max_v) * 100
+            for a, max_v in zip(actual_a, max_values)
+        ]
+
+        normalized_b = [
+            (b / max_v) * 100
+            for b, max_v in zip(actual_b, max_values)
+        ]
+
+        categories_closed = categories + [categories[0]]
+        normalized_a_closed = normalized_a + [normalized_a[0]]
+        normalized_b_closed = normalized_b + [normalized_b[0]]
+        actual_a_closed = actual_a + [actual_a[0]]
+        actual_b_closed = actual_b + [actual_b[0]]
+
+        # Calcolo dinamico dei colori (linee e bordi)
+        color_a = "#b88a2e" if summary_a["total"] >= summary_b["total"] else "#8A8D91"
+        color_b = "#b88a2e" if summary_b["total"] > summary_a["total"] else "#8A8D91"
+
+        # Calcolo dinamico dei colori per il riempimento (fill) con trasparenza al 15%
+        fill_a = "rgba(184, 138, 46, 0.15)" if summary_a["total"] >= summary_b["total"] else "rgba(192, 192, 192, 0.15)"
+        fill_b = "rgba(184, 138, 46, 0.15)" if summary_b["total"] > summary_a["total"] else "rgba(192, 192, 192, 0.15)"
+
+        fig = go.Figure()
+
+        fig.add_trace(
+            go.Scatterpolar(
+                r=normalized_a_closed,
+                theta=categories_closed,
+                mode="lines+markers",
+                fill="toself",
+                name=nation_a,
+                customdata=actual_a_closed,
+                line=dict(
+                    color=color_a,
+                    width=3
+                ),
+                marker=dict(
+                    color=color_a,
+                    size=11,
+                    symbol="circle-open",
+                    line=dict(
+                        color=color_a,
+                        width=2.5
+                    )
+                ),
+                fillcolor=fill_a,
+                hovertemplate=
+                    "<b>%{fullData.name}</b><br>" +
+                    "%{theta}<br>" +
+                    "Real value: %{customdata:.2f}<extra></extra>"
+            )
+        )
+
+        fig.add_trace(
+            go.Scatterpolar(
+                r=normalized_b_closed,
+                theta=categories_closed,
+                mode="lines+markers",
+                fill="toself",
+                name=nation_b,
+                customdata=actual_b_closed,
+                line=dict(
+                    color=color_b,
+                    width=3,
+                    dash="dash"
+                ),
+                marker=dict(
+                    color=color_b,
+                    size=12,
+                    symbol="x",
+                    line=dict(
+                        color=color_b,
+                        width=2.5
+                    )
+                ),
+                fillcolor=fill_b,
+                hovertemplate=
+                    "<b>%{fullData.name}</b><br>" +
+                    "%{theta}<br>" +
+                    "Real value: %{customdata:.2f}<extra></extra>"
+            )
+        )
+
+        fig.update_layout(
+            title=dict(
+                text=f"Who has the stronger Olympic profile? · {nation_a} vs {nation_b}",
+                font=dict(
+                    family="Playfair Display",
+                    size=26,
+                    color="#171717"
+                ),
+                x=0,
+                xanchor="left"
+            ),
+            height=650,
+            paper_bgcolor="#f4efe3",
+            plot_bgcolor="#f4efe3",
+            font=dict(
+                family="Roboto Mono",
+                color="#171717"
+            ),
+            polar=dict(
+                bgcolor="#f4efe3",
+                radialaxis=dict(
+                    visible=True,
+                    range=[0, 100],
+                    tickvals=[25, 50, 75, 100],
+                    ticktext=["25", "50", "75", "100"],
+                    gridcolor="rgba(23,23,23,0.25)",
+                    linecolor="#171717",
+                    tickfont=dict(color="#171717")
+                ),
+                angularaxis=dict(
+                    gridcolor="rgba(23,23,23,0.25)",
+                    linecolor="#171717",
+                    tickfont=dict(
+                        color="#171717",
+                        size=12
+                    )
+                )
+            ),
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=1.05,
+                xanchor="center",
+                x=0.5,
+                font=dict(color="#171717")
+            ),
+            margin=dict(l=80, r=80, t=110, b=60)
+        )
+
+        st.plotly_chart(fig, width="stretch")
+
+        
 # ============================================================
 # TRIVIA
 # ============================================================
 
 def curiosity_cards():
-    curiosities = [
-        {
-            "q": "Which country appears most often at the top of the Summer medal table?",
-            "a": "USA",
-            "detail": "Across the modern Summer Games, the United States is one of the dominant nations in total medals."
-        },
-        {
-            "q": "Why can one sport have many more medals than another?",
-            "a": "Events",
-            "detail": "A sport with many events, categories or distances offers more medal opportunities than a sport with only a few events."
-        },
-        {
-            "q": "Why are athlete entries higher than unique athletes?",
-            "a": "Repeated participation",
-            "detail": "The same athlete can appear in multiple events and in multiple Olympic editions."
-        },
-        {
-            "q": "Why do some countries have historical codes such as URS?",
-            "a": "Historical NOCs",
-            "detail": "Some NOC codes refer to historical national teams that no longer compete under the same code."
-        },
-        {
-            "q": "Why does filtering by era change the rings?",
-            "a": "Era-specific sports",
-            "detail": "Only sports appearing in the selected historical period are placed on the rings."
-        },
-    ]
-
-    if "revealed_trivia" not in st.session_state:
-        st.session_state.revealed_trivia = {}
-
-    st.markdown('<div class="section-kicker">Did You Know?</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-kicker">Lo sapevi che?</div>', unsafe_allow_html=True)
     st.markdown('<div class="section-title">Olympic Trivia from the Archive</div>', unsafe_allow_html=True)
 
-    cols = st.columns(3)
+    questions = [
+        {
+            "q": "In which city were the first modern Olympic Games held in 1896?",
+            "options": ["Paris", "London", "Rome", "Athens"],
+            "answer": "Athens"
+        },
+        {
+            "q": "Which nation has won the most gold medals in Summer Olympic history (1896-2016)?",
+            "options": ["Soviet Union", "China", "United States", "Great Britain"],
+            "answer": "United States"
+        },
+        {
+            "q": "Who is the athlete that won 8 gold medals in a single edition (Beijing 2008)?",
+            "options": ["Usain Bolt", "Mark Spitz", "Carl Lewis", "Michael Phelps"],
+            "answer": "Michael Phelps"
+        },
+        {
+            "q": "In what year were the Berlin Olympics, famous for Jesse Owens' victories, held?",
+            "options": ["1928", "1932", "1936", "1948"],
+            "answer": "1936"
+        },
+        {
+            "q": "Which of these sports returned to the Olympics in 2016 after over 100 years of absence?",
+            "options": ["Baseball", "Golf", "Karate", "Softball"],
+            "answer": "Golf"
+        },
+        {
+            "q": "Which gymnast scored the first historical 'perfect 10' at Montreal 1976?",
+            "options": ["Olga Korbut", "Mary Lou Retton", "Larisa Latynina", "Nadia Comăneci"],
+            "answer": "Nadia Comăneci"
+        },
+        {
+            "q": "How many Olympic rings are there and what do they primarily represent?",
+            "options": ["6 - The founding nations", "5 - The continents", "4 - The elements", "5 - The oceans"],
+            "answer": "5 - The continents"
+        },
+        {
+            "q": "Who is nicknamed 'The fastest man alive', dominating the 100m and 200m from 2008 to 2016?",
+            "options": ["Tyson Gay", "Justin Gatlin", "Usain Bolt", "Asafa Powell"],
+            "answer": "Usain Bolt"
+        },
+        {
+            "q": "At what age did diver Marjorie Gestring become the youngest individual Olympic champion in 1936?",
+            "options": ["11 years", "13 years", "15 years", "17 years"],
+            "answer": "13 years"
+        },
+        {
+            "q": "Which city was the first in history to host the Summer Olympics three times (1908, 1948, 2012)?",
+            "options": ["Paris", "Los Angeles", "Athens", "London"],
+            "answer": "London"
+        },
+        {
+            "q": "In 1900, the Paris Olympics were held alongside what other major event?",
+            "options": ["The World's Fair", "The World Cup", "The Diamond Jubilee", "The King's Coronation"],
+            "answer": "The World's Fair"
+        },
+        {
+            "q": "In which edition did the major US-led boycott occur?",
+            "options": ["Montreal 1976", "Los Angeles 1984", "Seoul 1988", "Moscow 1980"],
+            "answer": "Moscow 1980"
+        },
+        {
+            "q": "What is the only nation to have won at least one gold medal in every Summer edition from 1896 to 2016?",
+            "options": ["United States", "France", "Great Britain", "Greece"],
+            "answer": "Great Britain"
+        },
+        {
+            "q": "Which swimming stroke was the last to be introduced to the men's Olympic program (1956)?",
+            "options": ["Backstroke", "Breaststroke", "Freestyle", "Butterfly"],
+            "answer": "Butterfly"
+        },
+        {
+            "q": "At Mexico City 1968, which athlete revolutionized the high jump by inventing a new technique?",
+            "options": ["Valeriy Brumel", "Dick Fosbury", "Javier Sotomayor", "Patrik Sjöberg"],
+            "answer": "Dick Fosbury"
+        }
+    ]
 
-    for i, c in enumerate(curiosities):
-        with cols[i % 3]:
-            open_card = st.session_state.revealed_trivia.get(i, False)
+    # Inizializzazione delle variabili di stato per il quiz
+    if "trivia_q_idx" not in st.session_state:
+        st.session_state.trivia_q_idx = 0
+    if "trivia_score" not in st.session_state:
+        st.session_state.trivia_score = 0
+    if "trivia_answered" not in st.session_state:
+        st.session_state.trivia_answered = False
+    if "trivia_selected" not in st.session_state:
+        st.session_state.trivia_selected = None
 
-            st.markdown(
-                f"""
-                <div class="trivia-card">
-                    <div class="trivia-head">
-                        <span class="stamp">Trivia №{i + 1}</span>
-                        <span class="trivia-question-mark">?</span>
-                    </div>
-                    <p class="trivia-question">{html.escape(c["q"])}</p>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
+    idx = st.session_state.trivia_q_idx
 
-            if st.button(
-                "Hide answer" if open_card else "Tap to reveal →",
-                key=f"trivia_{i}",
-                width="stretch"
-            ):
-                st.session_state.revealed_trivia[i] = not open_card
-                st.rerun()
+    col_title, col_reset = st.columns([4, 1])
+    with col_reset:
+        st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
+        if st.button("🔄 Restart Quiz", use_container_width=True):
+            st.session_state.trivia_q_idx = 0
+            st.session_state.trivia_score = 0
+            st.session_state.trivia_answered = False
+            st.session_state.trivia_selected = None
+            st.rerun()
 
-            if open_card:
-                st.markdown(
-                    f"""
-                    <div class="trivia-answer">
-                        <div class="trivia-answer-main">{html.escape(c["a"])}</div>
-                        <p class="trivia-detail">{html.escape(c["detail"])}</p>
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
+    # Se il quiz è terminato
+    if idx >= len(questions):
+        st.success(f"🎉 Quiz Completed! You got {st.session_state.trivia_score} correct answers over {len(questions)}.")
+        if st.button("🔄 Play Again", use_container_width=True):
+            st.session_state.trivia_q_idx = 0
+            st.session_state.trivia_score = 0
+            st.session_state.trivia_answered = False
+            st.session_state.trivia_selected = None
+            st.rerun()
+        return
 
+    q_data = questions[idx]
+
+    # Grafica della carta della domanda
+    st.markdown(
+        f"""
+        <div class="trivia-card" style="margin-bottom: 20px; padding: 20px; text-align: center;">
+            <div class="trivia-head" style="justify-content: center; margin-bottom: 15px;">
+                <span class="stamp">Question {idx + 1} of {len(questions)}</span>
+            </div>
+            <h3 style="color: var(--ink); font-family: 'Playfair Display', serif;">{html.escape(q_data["q"])}</h3>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # Callback eseguita quando l'utente clicca una risposta
+    def check_answer(selected_option):
+        st.session_state.trivia_selected = selected_option
+        st.session_state.trivia_answered = True
+        if selected_option == q_data["answer"]:
+            st.session_state.trivia_score += 1
+
+    disabled = st.session_state.trivia_answered
+
+    # Creazione della griglia 2x2 per i bottoni
+    col1, col2 = st.columns(2)
+    cols = [col1, col2, col1, col2]
+
+    for i, option in enumerate(q_data["options"]):
+        btn_label = option
+        # Modifica l'estetica del bottone se l'utente ha già risposto
+        if st.session_state.trivia_answered:
+            if option == q_data["answer"]:
+                btn_label = f"✅ {option}"
+            elif option == st.session_state.trivia_selected:
+                btn_label = f"❌ {option}"
+        
+        cols[i].button(
+            btn_label, 
+            key=f"btn_{idx}_{i}", 
+            on_click=check_answer, 
+            args=(option,),
+            disabled=disabled,
+            use_container_width=True
+        )
+
+    # Feedback dopo aver risposto
+    if st.session_state.trivia_answered:
+        st.markdown("<hr style='margin: 20px 0; border-color: var(--muted); opacity: 0.3;'>", unsafe_allow_html=True)
+        if st.session_state.trivia_selected == q_data["answer"]:
+            st.success("✨ Correct Answer!")
+        else:
+            st.error(f"❌ Uncorrect Answer! The Correct Answer was: **{q_data['answer']}**")
+            
+        if st.button("Next Question ➡️", type="primary", use_container_width=True):
+            st.session_state.trivia_q_idx += 1
+            st.session_state.trivia_answered = False
+            st.session_state.trivia_selected = None
+            st.rerun()
 
 # ============================================================
 # HOST CITY CARTOGRAPHY
@@ -3088,7 +4467,7 @@ def show_host_city_cartography(df):
 # CURIOSITIES PAGE
 # ============================================================
 
-def show_curiosities_page():
+def show_curiosities_page(df):
     st.markdown('<div class="cartography-title">Olympic Curiosities</div>', unsafe_allow_html=True)
     st.markdown('<div class="cartography-subtitle">◆ Opening Ceremony · 1896 vs 2016 ◆</div>', unsafe_allow_html=True)
 
@@ -3102,7 +4481,23 @@ def show_curiosities_page():
     st.markdown("<br>", unsafe_allow_html=True)
 
     opening_ceremony_comparison()
+    st.markdown("<br><br>", unsafe_allow_html=True)
 
+    olympic_evolution_chart(df)
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    st.markdown(
+        """
+        <div class="medal-detail-card">
+            <div class="medal-detail-title"> 🌍  The Incredible Anomaly of Melbourne-Stockholm 1956</div>
+            <div class="medal-detail-text">
+                Did you know that the 1956 edition was the only one in the history of the Summer Olympics to take place across two different nations and continents? <br><br>
+                The official host city was Melbourne, Australia. However, the Australian government enforced a strict six-month quarantine law for all incoming animals, including horses. This made it absolutely impossible for international athletes to transport and compete with their own horses.<br><br>
+                To avoid canceling the discipline, the IOC made an unprecedented decision: the <b>Equestrian</b> events were separated from the rest of the Games and moved to June in <b>Stockholm, Sweden</b> (reusing the 1912 Olympic Stadium). All other competitions took place regularly in Melbourne five months later, between November and December!
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 # ============================================================
 # MAIN
@@ -3113,7 +4508,7 @@ def main():
         st.session_state.active_block = None
 
     if "era" not in st.session_state:
-        st.session_state.era = "ALL"
+        st.session_state.era = "1977-2016"
 
     if "page" not in st.session_state:
         st.session_state.page = "main"
@@ -3160,7 +4555,7 @@ def main():
         return
 
     if st.session_state.page == "curiosities":
-        show_curiosities_page()
+        show_curiosities_page(df)
         footer()
         return
 
@@ -3252,21 +4647,6 @@ def main():
             curiosity_cards()
 
     else:
-        sports = sorted(df_era["Sport"].dropna().unique())
-
-        st.markdown(
-            f"""
-            <section class="ring-panel">
-                <div class="panel-header">
-                    <span class="stamp">Summer · {era_label(era)}</span>
-                    <span class="mono-small">
-                        {len(sports)} sports
-                    </span>
-                </div>
-            </section>
-            """,
-            unsafe_allow_html=True
-        )
 
         olympic_rings(df_era, era)
 
@@ -3285,27 +4665,12 @@ def main():
 
         with c2:
             if st.button(
-                "✦ Explore Olympic Curiosities ✦",
+                "💡 Explore Olympic Curiosities 🔍",
                 key="open_curiosities_era",
                 width="stretch"
             ):
                 st.session_state.page = "curiosities"
                 st.rerun()
-
-        show_data = st.checkbox("Show filtered dataset")
-
-        if show_data:
-            columns_to_show = [
-                "ID", "Name", "Sex", "Age", "Height", "Weight", "Team", "NOC",
-                "Games", "Year", "Season", "City", "Sport", "Event", "Medal"
-            ]
-
-            existing_columns = [col for col in columns_to_show if col in df_era.columns]
-
-            st.dataframe(
-                df_era[existing_columns],
-                width="stretch"
-            )
 
     footer()
 

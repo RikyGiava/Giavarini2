@@ -4,7 +4,10 @@ from pathlib import Path
 import numpy as np
 import plotly.graph_objects as go
 import base64
-from PIL import Image, ImageOps
+from PIL import Image, ImageOps, ImageFile
+
+ImageFile.LOAD_TRUNCATED_IMAGES = True
+from io import BytesIO
 
 import pandas as pd
 import streamlit as st
@@ -414,16 +417,74 @@ st.markdown(
     .dispatch-card-active * {
         color: var(--paper) !important;
     }
+    
+   /* ============================================================
+   DISPATCH CARDS AS CLICKABLE LINKS
+============================================================ */
+
+    .dispatch-link {
+        display: block;
+        width: 100%;
+        height: 100%;
+        text-decoration: none !important;
+        color: inherit !important;
+        cursor: pointer;
+    }
+
+    .dispatch-link:hover {
+        text-decoration: none !important;
+    }
+
+    .dispatch-link:hover .dispatch-card {
+        background-color: rgba(184,138,46,0.10);
+        transform: translateY(-2px);
+        box-shadow: 5px 5px 0px #b88a2e;
+    }
+
+    .dispatch-link:hover .dispatch-card-active {
+        box-shadow: 5px 5px 0px #b88a2e;
+    }
+
+    /* ============================================================
+   FULL CLICKABLE DISPATCH CARDS - NO EXTRA RECTANGLES
+============================================================ */
+
+    /* ============================================================
+   DISPATCH CARDS AS CLICKABLE LINKS
+============================================================ */
+
+    .dispatch-link {
+        display: block;
+        width: 100%;
+        text-decoration: none !important;
+        color: inherit !important;
+        cursor: pointer;
+    }
+
+    .dispatch-link:hover {
+        text-decoration: none !important;
+    }
+
+    .dispatch-link:hover .dispatch-card {
+        background-color: rgba(184,138,46,0.10);
+        transform: translateY(-2px);
+        box-shadow: 5px 5px 0px #b88a2e;
+    }
+
+    .dispatch-link:hover .dispatch-card-active {
+        box-shadow: 5px 5px 0px #b88a2e;
+    }
 
     .stamp {
         display: inline-block;
-        border: 1.5px solid currentColor;
-        padding: 5px 10px;
-        font-family: 'Roboto Mono', monospace;
-        font-size: 10px;
+        padding: 2px 0px;
+        font-family: 'Roboto Condensed', 'Roboto Mono', sans-serif;
+        font-size: 11px;
+        font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.25em;
-        color: inherit;
+        letter-spacing: 0.35em;      /* Spaziatura ampia stile editoriale chic */
+        color: var(--brass) !important; /* Colore ottone coordinato al resto dell'app */
+        opacity: 0.9;
     }
 
     .glyph {
@@ -768,17 +829,16 @@ st.markdown(
         min-width: 190px;
         box-shadow: 5px 5px 0px #171717;
         color: #171717;
-        
 
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: flex-start;
+        justify-content: center;
 
         box-sizing: border-box;
-        padding: 14px 12px 18px 12px;
+        padding: 24px 12px 18px 12px;
         overflow: hidden;
-        }
+    }
 
     .podium-place.first {
         height: 245px;
@@ -796,30 +856,27 @@ st.markdown(
     }
 
     .podium-medal {
-        font-size: 42px;
-        margin-top: 18px;
+        font-size: 125px;
+        line-height: 1;
+        margin-top: 35px;
+        margin-bottom: 18px;
     }
 
-    .podium-rank {
-        font-family: 'Playfair Display', serif;
-        font-size: 44px;
-        line-height: 1;
-        color: #171717;
-    }
+    
 
     .podium-noc {
         font-family: 'Playfair Display', serif;
         font-size: 30px;
-        margin-top: 10px;
+        margin-top: 22px;
         color: #171717;
     }
 
     .podium-count {
         font-family: 'Roboto Mono', monospace;
-        font-size: 12px;
+        font-size: 11px;
         text-transform: uppercase;
         letter-spacing: 0.22em;
-        margin-top: 8px;
+        margin-top: 24px;
         color: #68645c;
     }
 
@@ -1187,9 +1244,11 @@ def noc_flag_html(noc, height=34):
     noc = str(noc).upper().strip()
 
     noc_to_country = {
+        # Main / current countries
         "USA": "us",
         "FRA": "fr",
         "GBR": "gb",
+        "ARG": "ar",
         "ITA": "it",
         "SWE": "se",
         "GER": "de",
@@ -1207,7 +1266,6 @@ def noc_flag_html(noc, height=34):
         "KOR": "kr",
         "BRA": "br",
         "RUS": "ru",
-        "URS": "su",
         "HUN": "hu",
         "POL": "pl",
         "ROU": "ro",
@@ -1221,6 +1279,134 @@ def noc_flag_html(noc, height=34):
         "KEN": "ke",
         "ETH": "et",
         "RSA": "za",
+
+        # Europe
+        "POR": "pt",
+        "IRL": "ie",
+        "ISL": "is",
+        "LUX": "lu",
+        "LIE": "li",
+        "MON": "mc",
+        "AND": "ad",
+        "SMR": "sm",
+        "MLT": "mt",
+        "CYP": "cy",
+        "TUR": "tr",
+        "CZE": "cz",
+        "SVK": "sk",
+        "CRO": "hr",
+        "SRB": "rs",
+        "SLO": "si",
+        "BIH": "ba",
+        "MNE": "me",
+        "MKD": "mk",
+        "ALB": "al",
+        "BUL": "bg",
+        "UKR": "ua",
+        "BLR": "by",
+        "LTU": "lt",
+        "LAT": "lv",
+        "EST": "ee",
+        "MDA": "md",
+        "GEO": "ge",
+        "ARM": "am",
+        "AZE": "az",
+
+        # Americas
+        "CHI": "cl",
+        "COL": "co",
+        "PER": "pe",
+        "URU": "uy",
+        "VEN": "ve",
+        "ECU": "ec",
+        "PAR": "py",
+        "BOL": "bo",
+        "CRC": "cr",
+        "PAN": "pa",
+        "GUA": "gt",
+        "HON": "hn",
+        "ESA": "sv",
+        "NCA": "ni",
+        "DOM": "do",
+        "PUR": "pr",
+        "TTO": "tt",
+        "BAH": "bs",
+        "BAR": "bb",
+        "BER": "bm",
+        "GUY": "gy",
+        "SUR": "sr",
+        "HAI": "ht",
+
+        # Asia
+        "IND": "in",
+        "PAK": "pk",
+        "IRI": "ir",
+        "IRQ": "iq",
+        "ISR": "il",
+        "KSA": "sa",
+        "QAT": "qa",
+        "KUW": "kw",
+        "UAE": "ae",
+        "BRN": "bh",
+        "JOR": "jo",
+        "LBN": "lb",
+        "SYR": "sy",
+        "KAZ": "kz",
+        "UZB": "uz",
+        "KGZ": "kg",
+        "TJK": "tj",
+        "TKM": "tm",
+        "MGL": "mn",
+        "PRK": "kp",
+        "TPE": "tw",
+        "HKG": "hk",
+        "SIN": "sg",
+        "THA": "th",
+        "INA": "id",
+        "MAS": "my",
+        "PHI": "ph",
+        "VIE": "vn",
+        "MYA": "mm",
+        "SRI": "lk",
+        "BAN": "bd",
+        "NEP": "np",
+
+        # Africa
+        "EGY": "eg",
+        "MAR": "ma",
+        "ALG": "dz",
+        "TUN": "tn",
+        "NGR": "ng",
+        "GHA": "gh",
+        "UGA": "ug",
+        "TAN": "tz",
+        "ZIM": "zw",
+        "ZAM": "zm",
+        "CMR": "cm",
+        "CIV": "ci",
+        "SEN": "sn",
+        "NAM": "na",
+        "BOT": "bw",
+        "MOZ": "mz",
+        "ANG": "ao",
+        "MAD": "mg",
+        "MRI": "mu",
+
+        # Oceania
+        "NZL": "nz",
+        "FIJ": "fj",
+        "PNG": "pg",
+        "SAM": "ws",
+        "TGA": "to",
+
+        # Historical / special Olympic teams
+        "URS": "su",
+        "EUN": "ru",
+        "TCH": "cz",
+        "YUG": "rs",
+        "SCG": "rs",
+        "BOH": "cz",
+        "ANZ": "au",
     }
 
     if noc == "URS":
@@ -1238,9 +1424,11 @@ def noc_flag_url(noc):
     noc = str(noc).upper().strip()
 
     noc_to_country = {
+        # Main / current countries
         "USA": "us",
         "FRA": "fr",
         "GBR": "gb",
+        "ARG": "ar",
         "ITA": "it",
         "SWE": "se",
         "GER": "de",
@@ -1271,6 +1459,134 @@ def noc_flag_url(noc):
         "KEN": "ke",
         "ETH": "et",
         "RSA": "za",
+
+        # Europe
+        "POR": "pt",
+        "IRL": "ie",
+        "ISL": "is",
+        "LUX": "lu",
+        "LIE": "li",
+        "MON": "mc",
+        "AND": "ad",
+        "SMR": "sm",
+        "MLT": "mt",
+        "CYP": "cy",
+        "TUR": "tr",
+        "CZE": "cz",
+        "SVK": "sk",
+        "CRO": "hr",
+        "SRB": "rs",
+        "SLO": "si",
+        "BIH": "ba",
+        "MNE": "me",
+        "MKD": "mk",
+        "ALB": "al",
+        "BUL": "bg",
+        "UKR": "ua",
+        "BLR": "by",
+        "LTU": "lt",
+        "LAT": "lv",
+        "EST": "ee",
+        "MDA": "md",
+        "GEO": "ge",
+        "ARM": "am",
+        "AZE": "az",
+
+        # Americas
+        "CHI": "cl",
+        "COL": "co",
+        "PER": "pe",
+        "URU": "uy",
+        "VEN": "ve",
+        "ECU": "ec",
+        "PAR": "py",
+        "BOL": "bo",
+        "CRC": "cr",
+        "PAN": "pa",
+        "GUA": "gt",
+        "HON": "hn",
+        "ESA": "sv",
+        "NCA": "ni",
+        "DOM": "do",
+        "PUR": "pr",
+        "TTO": "tt",
+        "BAH": "bs",
+        "BAR": "bb",
+        "BER": "bm",
+        "GUY": "gy",
+        "SUR": "sr",
+        "HAI": "ht",
+
+        # Asia
+        "IND": "in",
+        "PAK": "pk",
+        "IRI": "ir",
+        "IRQ": "iq",
+        "ISR": "il",
+        "KSA": "sa",
+        "QAT": "qa",
+        "KUW": "kw",
+        "UAE": "ae",
+        "BRN": "bh",
+        "JOR": "jo",
+        "LBN": "lb",
+        "SYR": "sy",
+        "KAZ": "kz",
+        "UZB": "uz",
+        "KGZ": "kg",
+        "TJK": "tj",
+        "TKM": "tm",
+        "MGL": "mn",
+        "PRK": "kp",
+        "TPE": "tw",
+        "HKG": "hk",
+        "SIN": "sg",
+        "THA": "th",
+        "INA": "id",
+        "MAS": "my",
+        "PHI": "ph",
+        "VIE": "vn",
+        "MYA": "mm",
+        "SRI": "lk",
+        "BAN": "bd",
+        "NEP": "np",
+
+        # Africa
+        "EGY": "eg",
+        "MAR": "ma",
+        "ALG": "dz",
+        "TUN": "tn",
+        "NGR": "ng",
+        "GHA": "gh",
+        "UGA": "ug",
+        "TAN": "tz",
+        "ZIM": "zw",
+        "ZAM": "zm",
+        "CMR": "cm",
+        "CIV": "ci",
+        "SEN": "sn",
+        "NAM": "na",
+        "BOT": "bw",
+        "MOZ": "mz",
+        "ANG": "ao",
+        "MAD": "mg",
+        "MRI": "mu",
+
+        # Oceania
+        "NZL": "nz",
+        "FIJ": "fj",
+        "PNG": "pg",
+        "SAM": "ws",
+        "TGA": "to",
+
+        # Historical / special Olympic teams
+        "URS": "su",
+        "EUN": "ru",
+        "TCH": "cz",
+        "YUG": "rs",
+        "SCG": "rs",
+        "BOH": "cz",
+        "ANZ": "au",
     }
 
     if noc == "URS":
@@ -1612,6 +1928,7 @@ def era_controls():
                 )
             else:
                 if st.button(era_label(era), key=f"era_{era}", width="stretch"):
+                    st.query_params.clear()
                     st.session_state.era = era
                     st.session_state.active_block = None
                     st.session_state.page = "main"
@@ -1655,22 +1972,18 @@ def dispatch_card(block_id, stamp, title, desc, glyph):
 
     st.markdown(
         f"""
-        <div class="{card_class}">
-            <span class="stamp">{stamp}</span>
-            <span class="glyph">{glyph}</span>
-            <div class="card-title">{title}</div>
-            <div class="{desc_class}">{desc}</div>
-            <div class="{tap_class}">{tap_text}</div>
-        </div>
+        <a class="dispatch-link" target="_self" href="?dispatch={html.escape(str(block_id))}">
+            <div class="{card_class}">
+                <span class="stamp">{html.escape(str(stamp))}</span>
+                <span class="glyph">{html.escape(str(glyph))}</span>
+                <div class="card-title">{html.escape(str(title))}</div>
+                <div class="{desc_class}">{html.escape(str(desc))}</div>
+                <div class="{tap_class}">{tap_text}</div>
+            </div>
+        </a>
         """,
         unsafe_allow_html=True
     )
-
-    if st.button("Open", key=f"open_{block_id}", width="stretch"):
-        st.session_state.active_block = block_id
-        st.rerun()
-
-
 def footer():
     st.markdown(
         """
@@ -1680,8 +1993,6 @@ def footer():
         """,
         unsafe_allow_html=True
     )
-
-
 # ============================================================
 # PODIUM + MEDAL WALL
 # ============================================================
@@ -1826,27 +2137,25 @@ def olympic_podium_and_medal_wall(filtered_medals_df, selected_year):
 
         <div class="podium-wrapper">
 
-                <div class="podium-place second">
+<div class="podium-wrapper">
+            <div class="podium-place second">
                 <div class="podium-medal">🥈</div>
-                <div class="podium-rank">2</div>
+                <div style="margin-bottom: 8px;">{noc_flag_html(second["NOC"], height=40).replace("margin-right:12px;", "margin-right:0px;")}</div>
                 <div class="podium-noc">{html.escape(str(second["NOC"]))}</div>
                 <div class="podium-count">{int(second["Medals"])} medals</div>
             </div>
-
-                <div class="podium-place first">
+            <div class="podium-place first">
                 <div class="podium-medal">🥇</div>
-                <div class="podium-rank">1</div>
+                <div style="margin-bottom: 8px;">{noc_flag_html(first["NOC"], height=40).replace("margin-right:12px;", "margin-right:0px;")}</div>
                 <div class="podium-noc">{html.escape(str(first["NOC"]))}</div>
                 <div class="podium-count">{int(first["Medals"])} medals</div>
             </div>
-
             <div class="podium-place third">
                 <div class="podium-medal">🥉</div>
-                <div class="podium-rank">3</div>
+                <div style="margin-bottom: 8px;">{noc_flag_html(third["NOC"], height=40).replace("margin-right:12px;", "margin-right:0px;")}</div>
                 <div class="podium-noc">{html.escape(str(third["NOC"]))}</div>
                 <div class="podium-count">{int(third["Medals"])} medals</div>
             </div>
-
         </div>
         """
     )
@@ -1921,14 +2230,22 @@ def olympic_podium_and_medal_wall(filtered_medals_df, selected_year):
 
 
 def fixed_opening_image(image_path, size=(900, 430)):
-    img = Image.open(image_path).convert("RGB")
-    img = ImageOps.fit(
-        img,
-        size,
-        method=Image.Resampling.LANCZOS,
-        centering=(0.5, 0.5)
-    )
-    return img
+    try:
+        img = Image.open(image_path).convert("RGB")
+
+        img = ImageOps.fit(
+            img,
+            size,
+            method=Image.Resampling.LANCZOS,
+            centering=(0.5, 0.5)
+        )
+
+        return img
+
+    except Exception as e:
+        st.warning(f"Image could not be loaded: {image_path}")
+        st.caption(f"Error: {e}")
+        return None
 
 # ============================================================
 # OPENING CEREMONY COMPARISON
@@ -1974,19 +2291,7 @@ def opening_ceremony_comparison():
         else:
             st.warning("Missing image: images/opening_1896.jpg")
 
-        st.markdown(
-            """
-            <div class="medal-detail-card">
-                <div class="medal-detail-title">A solemn beginning</div>
-                <div class="medal-detail-text">
-                    The 1896 Opening Ceremony was formal, simple and symbolic.
-                    It represented the rebirth of the Olympic Games and took place in Athens,
-                    strongly connected to the ancient Greek tradition.
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+        
 
     with col2:
         st.markdown(
@@ -2007,19 +2312,541 @@ def opening_ceremony_comparison():
         else:
             st.warning("Missing image: images/opening_2016.jpg")
 
-        st.markdown(
-            """
-            <div class="medal-detail-card">
-                <div class="medal-detail-title">A modern Olympic show</div>
-                <div class="medal-detail-text">
-                    The 2016 Opening Ceremony was a large-scale performance with music,
-                    choreography, lights and cultural references to Brazil, nature,
-                    diversity and Olympic unity.
-                </div>
+        
+# ============================================================
+# OPENING CEREMONY FLIP BOOK
+# ============================================================
+
+def opening_ceremony_book():
+    memories = [
+        {
+            "year": "1896",
+            "city": "Athina",
+            "image": "images/opening_1896.jpg",
+            "title": "The first modern Olympic ceremony",
+            "text": "Athina 1896 marked the rebirth of the modern Olympic Games. The ceremony was solemn, simple and symbolic, strongly connected to ancient Greek tradition and to the idea of restoring the Olympic spirit."
+        },
+        {
+            "year": "1900",
+            "city": "Paris",
+            "image": "images/opening_1900.jpg",
+            "title": "Olympics inside a world exhibition",
+            "text": "Paris 1900 was closely linked to the Universal Exposition. The Games were less clearly separated as an Olympic event, and the ceremony reflected a period in which the Olympic identity was still being defined."
+        },
+        {
+            "year": "1904",
+            "city": "St. Louis",
+            "image": "images/opening_1904.jpg",
+            "title": "A distant and experimental edition",
+            "text": "St. Louis 1904 brought the Olympic Games to the United States for the first time. The ceremony and the event were still modest compared with later editions, showing how the Games were gradually searching for an international format."
+        },
+        {
+            "year": "1906",
+            "city": "Athina",
+            "image": "images/opening_1906.jpg",
+            "title": "A return to the Olympic birthplace",
+            "text": "The 1906 Intercalated Games returned to Athina and reinforced the symbolic connection between the modern Olympic movement and Greece. The ceremony helped consolidate rituals that would become more recognizable in later editions."
+        },
+        {
+            "year": "1908",
+            "city": "London",
+            "image": "images/opening_1908.jpg",
+            "title": "A more organized Olympic stage",
+            "text": "London 1908 represented an important step toward a more structured Olympic ceremony. The Games became more formal, with clearer national delegations and a stronger sense of international sporting representation."
+        },
+        {
+            "year": "1912",
+            "city": "Stockholm",
+            "image": "images/opening_1912.jpg",
+            "title": "Order, elegance and national pride",
+            "text": "Stockholm 1912 is often remembered as one of the most organized early Olympic editions. The opening ceremony expressed discipline, elegance and national pride, anticipating the more ceremonial style of the modern Games."
+        },
+        {
+            "year": "1920",
+            "city": "Antwerpen",
+            "image": "images/opening_1920.jpg",
+            "title": "A ceremony after the war",
+            "text": "Antwerpen 1920 carried a strong symbolic meaning after World War I. The ceremony represented recovery, unity and the return of international sport, making the Olympic Games a space for reconstruction and hope."
+        },
+        {
+            "year": "1924",
+            "city": "Paris",
+            "image": "images/opening_1924.jpg",
+            "title": "The Olympic image becomes stronger",
+            "text": "Paris 1924 helped strengthen the public image of the Olympic Games. The ceremony became more recognizable and the event gained greater international visibility, showing the Games as a growing global institution."
+        },
+        {
+            "year": "1928",
+            "city": "Amsterdam",
+            "image": "images/opening_1928.jpg",
+            "title": "Traditions begin to settle",
+            "text": "Amsterdam 1928 was important for the consolidation of Olympic traditions. The ceremony became more structured and symbolic, contributing to the visual and ritual identity that people now associate with the Olympic Games."
+        },
+        {
+            "year": "1932",
+            "city": "Los Angeles",
+            "image": "images/opening_1932.jpg",
+            "title": "The Olympic show begins to grow",
+            "text": "Los Angeles 1932 showed a stronger sense of spectacle and organization. The ceremony reflected the growing role of media, architecture and public entertainment in shaping the Olympic experience."
+        },
+        {
+            "year": "1936",
+            "city": "Berlin",
+            "image": "images/opening_1936.jpg",
+            "title": "A monumental and political ceremony",
+            "text": "Berlin 1936 transformed the opening ceremony into a highly staged and monumental event. The edition showed how Olympic ceremonies could be used not only for sport, but also for political image, symbolism and mass spectacle."
+        },
+        {
+            "year": "1948",
+            "city": "London",
+            "image": "images/opening_1948.jpg",
+            "title": "The austerity Games",
+            "text": "London 1948 marked the return of the Olympic Games after World War II. The ceremony was more sober and austere, reflecting a difficult post-war context but also the desire to restart international sport."
+        },
+        {
+            "year": "1952",
+            "city": "Helsinki",
+            "image": "images/opening_1952.jpg",
+            "title": "A northern Olympic memory",
+            "text": "Helsinki 1952 brought the Games to Finland in a new post-war international context. The ceremony combined simplicity, national identity and the growing participation of countries from different parts of the world."
+        },
+        {
+            "year": "1956",
+            "city": "Melbourne / Stockholm",
+            "image": [
+                "images/opening_1956_melbourne.jpg",
+                "images/opening_1956_stockholm.jpg"
+            ],
+            "title": "Two ceremonies, two continents",
+            "text": "Melbourne 1956 was a unique Olympic edition because the Games were split between two cities and two continents. Most events took place in Melbourne, Australia, while the equestrian competitions were held separately in Stockholm, Sweden, because of Australian quarantine rules for horses. For this reason, the opening memory of 1956 is represented through both cities."
+        },
+        {
+            "year": "1960",
+            "city": "Roma",
+            "image": "images/opening_1960.jpg",
+            "title": "Ancient history meets modern sport",
+            "text": "Roma 1960 connected the Olympic Games with classical architecture and ancient history. The ceremony created a strong dialogue between the heritage of ancient Rome and the modern international sporting movement."
+        },
+        {
+            "year": "1964",
+            "city": "Tokyo",
+            "image": "images/opening_1964.jpg",
+            "title": "A symbol of modern Japan",
+            "text": "Tokyo 1964 was a powerful symbol of Japan’s post-war transformation. The ceremony presented the country as modern, technologically advanced and open to the world, marking a new chapter for the Olympic movement in Asia."
+        },
+        {
+            "year": "1968",
+            "city": "Mexico City",
+            "image": "images/opening_1968.jpg",
+            "title": "Colour, altitude and cultural identity",
+            "text": "Mexico City 1968 brought a distinctive visual identity to the Olympic ceremony. The event combined sport, colour, design and Mexican culture, showing how host cities could use the opening ceremony to express national character."
+        },
+        {
+            "year": "1972",
+            "city": "Munich",
+            "image": "images/opening_1972.jpg",
+            "title": "A modern and open Olympic image",
+            "text": "Munich 1972 aimed to present a young, modern and open image of Germany. The ceremony used design, architecture and colour to create a new visual language for the Games."
+        },
+        {
+            "year": "1976",
+            "city": "Montreal",
+            "image": "images/opening_1976.jpg",
+            "title": "Ceremony as national presentation",
+            "text": "Montreal 1976 continued the transformation of the opening ceremony into a major national presentation. The event combined protocol, performance and symbolism in a more complex Olympic format."
+        },
+        {
+            "year": "1980",
+            "city": "Moskva",
+            "image": "images/opening_1980.jpg",
+            "title": "A grand ceremony in a divided world",
+            "text": "Moskva 1980 was staged during a politically tense period marked by boycotts. The ceremony was grand and highly choreographed, showing both the spectacular potential of the Games and the influence of global politics."
+        },
+        {
+            "year": "1984",
+            "city": "Los Angeles",
+            "image": "images/opening_1984.jpg",
+            "title": "Entertainment enters the Olympic stage",
+            "text": "Los Angeles 1984 gave the opening ceremony a more entertainment-oriented style. Music, television and show elements became increasingly important, anticipating the modern Olympic ceremony as a global media event."
+        },
+        {
+            "year": "1988",
+            "city": "Seoul",
+            "image": "images/opening_1988.jpg",
+            "title": "A bridge between tradition and modernity",
+            "text": "Seoul 1988 presented South Korea to the world through a ceremony that combined tradition, national identity and modern ambition. It showed how the Olympic stage could become a moment of international recognition."
+        },
+        {
+            "year": "1992",
+            "city": "Barcelona",
+            "image": "images/opening_1992.jpg",
+            "title": "The city becomes the protagonist",
+            "text": "Barcelona 1992 is remembered for its strong cultural and urban identity. The ceremony helped present the city itself as a protagonist, mixing Mediterranean culture, design and Olympic symbolism."
+        },
+        {
+            "year": "1996",
+            "city": "Atlanta",
+            "image": "images/opening_1996.jpg",
+            "title": "A centennial celebration",
+            "text": "Atlanta 1996 celebrated one hundred years of the modern Olympic Games. The ceremony looked back to Olympic history while also reflecting the large-scale entertainment culture of the United States."
+        },
+        {
+            "year": "2000",
+            "city": "Sydney",
+            "image": "images/opening_2000.jpg",
+            "title": "Nature, culture and celebration",
+            "text": "Sydney 2000 presented Australia through a ceremony rich in natural imagery, cultural references and celebration. The event showed how opening ceremonies could become emotional narratives about place and identity."
+        },
+        {
+            "year": "2004",
+            "city": "Athina",
+            "image": "images/opening_2004.jpg",
+            "title": "The Games return home",
+            "text": "Athina 2004 marked the return of the Olympic Games to their symbolic birthplace. The ceremony strongly emphasized Greek history, mythology and continuity between the ancient and modern Olympic worlds."
+        },
+        {
+            "year": "2008",
+            "city": "Beijing",
+            "image": "images/opening_2008.jpg",
+            "title": "A monumental global spectacle",
+            "text": "Beijing 2008 transformed the opening ceremony into one of the most spectacular visual events in Olympic history. Mass choreography, technology and cultural symbolism were used to present China on a global stage."
+        },
+        {
+            "year": "2012",
+            "city": "London",
+            "image": "images/opening_2012.jpg",
+            "title": "History, humour and popular culture",
+            "text": "London 2012 offered a more narrative and playful ceremony. It combined British history, music, literature, humour and popular culture, showing that Olympic ceremonies could be both spectacular and self-ironic."
+        },
+        {
+            "year": "2016",
+            "city": "Rio de Janeiro",
+            "image": "images/opening_2016.jpg",
+            "title": "A global cultural spectacle",
+            "text": "Rio de Janeiro 2016 presented Brazil through music, dance, colour and environmental messages. The ceremony was vibrant and emotional, showing the Olympic Games as a global celebration of culture and diversity."
+        },
+    ]
+
+    if "show_opening_book" not in st.session_state:
+        st.session_state.show_opening_book = True
+
+    if "opening_book_index" not in st.session_state:
+        st.session_state.opening_book_index = 0
+    st.html(
+        """
+        <div style="
+            text-align: center;
+            margin-top: 38px;
+            margin-bottom: 36px;
+        ">
+            <div style="
+                font-family: 'Playfair Display', serif;
+                font-size: 56px;
+                font-weight: 800;
+                line-height: 1.02;
+                color: #171717;
+                margin-bottom: 14px;
+            ">
+                Opening Ceremony Through Time
             </div>
-            """,
-            unsafe_allow_html=True
-        )
+
+            <div style="
+                font-family: 'Roboto Mono', monospace;
+                font-size: 12px;
+                letter-spacing: 0.22em;
+                text-transform: uppercase;
+                color: #b88a2e;
+                margin-bottom: 10px;
+            ">
+                From solemn ritual to global spectacle
+            </div>
+
+            <div style="
+                max-width: 680px;
+                margin: 0 auto;
+                font-size: 16px;
+                font-style: italic;
+                line-height: 1.6;
+                color: rgba(23,23,23,0.72);
+            ">
+                Browse historical Olympic ceremonies and see how the Games evolved across different cities, cultures and eras.
+            </div>
+        </div>
+        """
+    )
+
+    
+
+    
+
+    current_index = st.session_state.opening_book_index
+    current_memory = memories[current_index]
+
+    image_data = current_memory["image"]
+
+    if isinstance(image_data, list):
+        image_html_parts = []
+
+        for img_path in image_data:
+            image_path = Path(img_path)
+
+            if image_path.exists():
+                img = fixed_opening_image(image_path, size=(380, 500))
+
+                if img is not None:
+                    img_buffer = BytesIO()
+                    img.save(img_buffer, format="JPEG")
+                    img_base64 = base64.b64encode(img_buffer.getvalue()).decode("utf-8")
+
+                    if "melbourne" in img_path.lower():
+                        city_label = "Melbourne"
+                    elif "stockholm" in img_path.lower():
+                        city_label = "Stockholm"
+                    else:
+                        city_label = "Opening Ceremony"
+
+                    image_html_parts.append(
+                        f"""
+                        <div style="
+                            height: 100%;
+                            display: flex;
+                            flex-direction: column;
+                            gap: 8px;
+                        ">
+                            <div style="
+                                font-family: 'Roboto Mono', monospace;
+                                font-size: 10px;
+                                letter-spacing: 0.18em;
+                                text-transform: uppercase;
+                                color: #b88a2e;
+                                text-align: center;
+                            ">
+                                {city_label}
+                            </div>
+
+                            <img src="data:image/jpeg;base64,{img_base64}" style="
+                                width: 100%;
+                                height: 100%;
+                                object-fit: cover;
+                                border: 1.5px solid #171717;
+                            ">
+                        </div>
+                        """
+                    )
+            else:
+                image_html_parts.append(
+                    f"""
+                    <div style="
+                        height: 100%;
+                        border: 1.5px dashed #171717;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-family: 'Roboto Mono', monospace;
+                        color: #171717;
+                        text-align: center;
+                        padding: 20px;
+                        box-sizing: border-box;
+                    ">
+                        Missing image:<br>{img_path}
+                    </div>
+                    """
+                )
+
+        image_html = f"""
+        <div style="
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            height: 100%;
+        ">
+            {''.join(image_html_parts)}
+        </div>
+        """
+
+    else:
+        image_path = Path(image_data)
+
+        if image_path.exists():
+            img = fixed_opening_image(image_path, size=(760, 500))
+
+            if img is not None:
+                img_buffer = BytesIO()
+                img.save(img_buffer, format="JPEG")
+                img_base64 = base64.b64encode(img_buffer.getvalue()).decode("utf-8")
+
+                image_html = f"""
+                <img src="data:image/jpeg;base64,{img_base64}" style="
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    border: 1.5px solid #171717;
+                ">
+                """
+            else:
+                image_html = f"""
+                <div style="
+                    height: 100%;
+                    border: 1.5px dashed #171717;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-family: 'Roboto Mono', monospace;
+                    color: #171717;
+                    text-align: center;
+                    padding: 20px;
+                    box-sizing: border-box;
+                ">
+                    Image exists but could not be loaded:<br>{image_data}
+                </div>
+                """
+        else:
+            image_html = f"""
+            <div style="
+                height: 100%;
+                border: 1.5px dashed #171717;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-family: 'Roboto Mono', monospace;
+                color: #171717;
+                text-align: center;
+                padding: 20px;
+                box-sizing: border-box;
+            ">
+                Missing image:<br>{image_data}
+            </div>
+            """
+
+    st.html(
+        f"""
+        <div style="
+            max-width: 1120px;
+            margin: 26px auto 18px auto;
+            padding: 24px;
+            background: #171717;
+            box-shadow: 10px 10px 0px #b88a2e;
+            box-sizing: border-box;
+        ">
+            <div style="
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 0;
+                min-height: 540px;
+            ">
+
+                <div style="
+                    background: #f4efe3;
+                    border: 2px solid #171717;
+                    border-right: 1px solid rgba(23,23,23,0.35);
+                    padding: 42px 38px;
+                    box-shadow: inset -18px 0px 28px rgba(0,0,0,0.10);
+                    position: relative;
+                    box-sizing: border-box;
+                ">
+                    <div style="
+                        font-family: 'Roboto Mono', monospace;
+                        font-size: 11px;
+                        text-transform: uppercase;
+                        letter-spacing: 0.28em;
+                        color: #b88a2e;
+                        margin-bottom: 18px;
+                    ">
+                        Page {current_index + 1} / {len(memories)}
+                    </div>
+
+                    <div style="
+                        font-family: 'Playfair Display', serif;
+                        font-size: 58px;
+                        line-height: 0.95;
+                        color: #171717;
+                        margin-bottom: 10px;
+                    ">
+                        {current_memory["year"]}
+                    </div>
+
+                    <div style="
+                        font-family: 'Roboto Mono', monospace;
+                        font-size: 13px;
+                        text-transform: uppercase;
+                        letter-spacing: 0.22em;
+                        color: #68645c;
+                        margin-bottom: 34px;
+                    ">
+                        {current_memory["city"]} · Opening Ceremony
+                    </div>
+
+                    <div style="
+                        font-family: 'Playfair Display', serif;
+                        font-size: 34px;
+                        line-height: 1.1;
+                        color: #171717;
+                        margin-bottom: 18px;
+                    ">
+                        {current_memory["title"]}
+                    </div>
+
+                    <div style="
+                        font-family: 'Roboto Mono', monospace;
+                        font-size: 13px;
+                        line-height: 1.75;
+                        color: rgba(23,23,23,0.78);
+                    ">
+                        {current_memory["text"]}
+                    </div>
+
+                    <div style="
+                        position: absolute;
+                        bottom: 28px;
+                        left: 38px;
+                        right: 38px;
+                        border-top: 1px solid rgba(23,23,23,0.25);
+                        padding-top: 12px;
+                        font-family: 'Roboto Mono', monospace;
+                        font-size: 10px;
+                        letter-spacing: 0.22em;
+                        text-transform: uppercase;
+                        color: #68645c;
+                    ">
+                        Olympic Archive Memory Book
+                    </div>
+                </div>
+
+                <div style="
+                    background: #f4efe3;
+                    border: 2px solid #171717;
+                    border-left: 1px solid rgba(23,23,23,0.35);
+                    padding: 28px;
+                    box-shadow: inset 18px 0px 28px rgba(0,0,0,0.10);
+                    box-sizing: border-box;
+                ">
+                    <div style="
+                        height: 100%;
+                        background: rgba(255,255,255,0.18);
+                        padding: 12px;
+                        border: 1.5px solid rgba(23,23,23,0.35);
+                        box-sizing: border-box;
+                    ">
+                        {image_html}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        """
+    )
+
+    nav1, nav2, nav3 = st.columns([1, 1.4, 1])
+
+    with nav1:
+        if st.button("← Previous page", key="book_previous", width="stretch"):
+            st.session_state.opening_book_index = (current_index - 1) % len(memories)
+            st.rerun()
+
+    with nav3:
+        if st.button("Next page →", key="book_next", width="stretch"):
+            st.session_state.opening_book_index = (current_index + 1) % len(memories)
+            st.rerun()
 # ============================================================
 # OLYMPIC EVOLUTION CHART
 # ============================================================
@@ -2111,6 +2938,20 @@ def olympic_evolution_chart(df):
             """
             <div style="text-align: right; font-size: 14px; color: var(--muted); margin-top: -20px; padding-right: 15px; margin-bottom: 25px;">
                 ◍ <i>The size of the bubble indicates the number of participating <b>Nations</b></i>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            """
+            <div class="medal-detail-card">
+                <div class="medal-detail-title"> 🌍  The Incredible Anomaly of Melbourne-Stockholm 1956</div>
+                <div class="medal-detail-text">
+                    Did you know that the 1956 edition was the only one in the history of the Summer Olympics to take place across two different nations and continents? <br><br>
+                    The official host city was Melbourne, Australia. However, the Australian government enforced a strict six-month quarantine law for all incoming animals, including horses. This made it absolutely impossible for international athletes to transport and compete with their own horses.<br><br>
+                    To avoid canceling the discipline, the IOC made an unprecedented decision: the <b>Equestrian</b> events were separated from the rest of the Games and moved to June in <b>Stockholm, Sweden</b> (reusing the 1912 Olympic Stadium). All other competitions took place regularly in Melbourne five months later, between November and December!
+                </div>
             </div>
             """,
             unsafe_allow_html=True
@@ -2253,7 +3094,682 @@ def olympic_evolution_chart(df):
             unsafe_allow_html=True
         )
         
+# ============================================================
+# 3D FLAG GALAXY
+# ============================================================
 
+def country_code_to_emoji(country_code):
+    """
+    Convert ISO country code like 'it' into emoji flag 🇮🇹.
+    """
+    if not country_code or len(country_code) != 2:
+        return "🏳️"
+
+    country_code = country_code.upper()
+    return chr(ord(country_code[0]) + 127397) + chr(ord(country_code[1]) + 127397)
+
+
+def noc_to_flag_emoji(noc):
+    noc = str(noc).upper().strip()
+
+    noc_to_country = {
+        "USA": "us", "FRA": "fr", "GBR": "gb", "ARG": "ar", "ITA": "it",
+        "SWE": "se", "GER": "de", "FRG": "de", "GDR": "de", "GRE": "gr",
+        "ESP": "es", "NED": "nl", "BEL": "be", "SUI": "ch", "CAN": "ca",
+        "AUS": "au", "JPN": "jp", "CHN": "cn", "KOR": "kr", "BRA": "br",
+        "RUS": "ru", "HUN": "hu", "POL": "pl", "ROU": "ro", "DEN": "dk",
+        "FIN": "fi", "NOR": "no", "AUT": "at", "MEX": "mx", "CUB": "cu",
+        "JAM": "jm", "KEN": "ke", "ETH": "et", "RSA": "za", "POR": "pt",
+        "IRL": "ie", "TUR": "tr", "CZE": "cz", "SVK": "sk", "CRO": "hr",
+        "SRB": "rs", "SLO": "si", "BUL": "bg", "UKR": "ua", "BLR": "by",
+        "LTU": "lt", "LAT": "lv", "EST": "ee", "CHI": "cl", "COL": "co",
+        "PER": "pe", "URU": "uy", "VEN": "ve", "ECU": "ec", "IND": "in",
+        "PAK": "pk", "IRI": "ir", "ISR": "il", "KSA": "sa", "QAT": "qa",
+        "KAZ": "kz", "UZB": "uz", "MGL": "mn", "PRK": "kp", "TPE": "tw",
+        "HKG": "hk", "SIN": "sg", "THA": "th", "INA": "id", "MAS": "my",
+        "PHI": "ph", "VIE": "vn", "EGY": "eg", "MAR": "ma", "ALG": "dz",
+        "TUN": "tn", "NGR": "ng", "GHA": "gh", "UGA": "ug", "ZIM": "zw",
+        "NZL": "nz", "FIJ": "fj",
+
+        # Historical Olympic teams
+        "URS": "su",
+        "EUN": "ru",
+        "TCH": "cz",
+        "YUG": "rs",
+        "SCG": "rs",
+        "BOH": "cz",
+        "ANZ": "au",
+    }
+
+    if noc == "URS":
+        return "☭"
+
+    code = noc_to_country.get(noc)
+    return country_code_to_emoji(code)
+
+
+# ============================================================
+# 3D OLYMPIC FLAG STADIUM
+# ============================================================
+
+def olympic_flag_galaxy_3d(df, df_medals):
+    
+    if df.empty or df_medals.empty:
+        st.info("Not enough data to build the 3D Olympic Flag Stadium.")
+        return
+
+    unique_medals = (
+        df_medals
+        .drop_duplicates(subset=["Year", "Sport", "Event", "Medal", "NOC"])
+        .copy()
+    )
+
+    # ============================================================
+    # DATA PREPARATION
+    # ============================================================
+
+    participation = (
+        df
+        .groupby("NOC")
+        .agg(
+            Athlete_entries=("ID", "count"),
+            Athletes=("Name", "nunique"),
+            Sports_entered=("Sport", "nunique"),
+            Editions=("Year", "nunique")
+        )
+        .reset_index()
+    )
+
+    medals = (
+        unique_medals
+        .groupby("NOC")
+        .agg(
+            Total_medals=("Medal", "count"),
+            Gold=("Medal", lambda x: (x == "Gold").sum()),
+            Silver=("Medal", lambda x: (x == "Silver").sum()),
+            Bronze=("Medal", lambda x: (x == "Bronze").sum()),
+            Medal_sports=("Sport", "nunique")
+        )
+        .reset_index()
+    )
+
+    stadium_df = participation.merge(medals, on="NOC", how="inner")
+
+    if stadium_df.empty:
+        st.info("No medal nations available for this view.")
+        return
+
+    stadium_df["Medals_per_1000_entries"] = (
+        stadium_df["Total_medals"] / stadium_df["Athlete_entries"] * 1000
+    )
+
+    stadium_df["Gold_share"] = (
+        stadium_df["Gold"] / stadium_df["Total_medals"]
+    ).fillna(0)
+
+    # ============================================================
+    # SELECT NATIONS TO SHOW
+    # top medal nations + surprisingly efficient nations
+    # ============================================================
+
+    top_medal_nocs = (
+        stadium_df
+        .sort_values("Total_medals", ascending=False)
+        .head(30)["NOC"]
+        .tolist()
+    )
+
+    efficient_nocs = (
+        stadium_df[stadium_df["Total_medals"] >= 3]
+        .sort_values("Medals_per_1000_entries", ascending=False)
+        .head(14)["NOC"]
+        .tolist()
+    )
+
+    selected_nocs = sorted(set(top_medal_nocs + efficient_nocs))
+
+    plot_df = (
+        stadium_df[stadium_df["NOC"].isin(selected_nocs)]
+        .sort_values("Total_medals", ascending=False)
+        .reset_index(drop=True)
+        .copy()
+    )
+
+
+    # ============================================================
+    # CLICKABLE FLAG LEGEND
+    # ============================================================
+
+    if "selected_stadium_noc" not in st.session_state:
+        st.session_state.selected_stadium_noc = None
+
+    st.markdown(
+        """
+        <div style="
+            border: 2px solid #171717;
+            background: rgba(255,255,255,0.16);
+            padding: 18px;
+            margin: 10px auto 26px auto;
+            box-shadow: 5px 5px 0px #171717;
+        ">
+            <div style="
+                font-family: 'Playfair Display', serif;
+                font-size: 28px;
+                color: #171717;
+                text-align: center;
+                margin-bottom: 6px;
+            ">
+                Click a flag to locate it in the 3D Stadium
+            </div>
+            <div style="
+                font-family: 'Roboto Mono', monospace;
+                font-size: 10px;
+                letter-spacing: 0.18em;
+                text-transform: uppercase;
+                color: #b88a2e;
+                text-align: center;
+                margin-bottom: 14px;
+            ">
+                The selected nation will be highlighted inside the 3D chart
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    legend_cols = st.columns(8)
+
+    legend_cols = st.columns(8)
+    for i, row in plot_df.iterrows():
+        noc = str(row["NOC"])
+        flag_url = noc_flag_url(noc)
+        
+        with legend_cols[i % 8]:
+            # Centriamo la bandiera usando HTML/CSS anziché st.image
+            if flag_url:
+                st.markdown(
+                    f"""
+                    <div style="display: flex; justify-content: center; margin-bottom: 5px; margin-top: 5px;">
+                        <img src="{flag_url}" height="32" style="border-radius: 4px; box-shadow: 2px 2px 0px rgba(23,23,23,0.2);">
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+            else:
+                # Se la bandiera manca, inseriamo uno spazio vuoto della stessa altezza per non "rompere" la griglia
+                st.markdown(
+                    '<div style="height: 32px; margin-bottom: 5px; margin-top: 5px;"></div>', 
+                    unsafe_allow_html=True
+                )
+                
+            if st.button(
+                noc,
+                key=f"stadium_flag_{noc}",
+                width="stretch"
+            ):
+                st.session_state.selected_stadium_noc = noc
+                st.rerun()
+    # ============================================================
+    # 3D POSITIONING
+    # ============================================================
+
+    n = len(plot_df)
+    angles = np.linspace(0, 2 * np.pi, n, endpoint=False)
+
+    # If a nation is selected from the flag legend,
+    # rotate the stadium so that it appears in front.
+    selected_noc = st.session_state.get("selected_stadium_noc", None)
+
+    if selected_noc in plot_df["NOC"].values:
+        selected_idx = plot_df.index[plot_df["NOC"] == selected_noc][0]
+        selected_angle = angles[selected_idx]
+
+        # Front position in the 3D stadium
+        target_angle = -np.pi / 2
+
+        rotation = target_angle - selected_angle
+        angles = angles + rotation
+
+    # Distance from the centre = number of medal-winning sports
+    max_sports = max(plot_df["Medal_sports"].max(), 1)
+
+    radius = 4 + (plot_df["Medal_sports"] / max_sports) * 14
+
+    plot_df["x"] = radius * np.cos(angles)
+    plot_df["y"] = radius * np.sin(angles)
+
+    # Height = total medals, log-scaled
+    plot_df["z"] = np.log1p(plot_df["Total_medals"]) * 18
+
+    plot_df["Flag"] = plot_df["NOC"].apply(noc_to_flag_emoji)
+    plot_df["Label"] = plot_df["Flag"] + " " + plot_df["NOC"]
+
+    # ============================================================
+    # FIGURE
+    # ============================================================
+
+    fig = go.Figure()
+
+    # Stadium base: concentric rings
+    for r in [5, 9, 13, 17]:
+        theta = np.linspace(0, 2 * np.pi, 240)
+
+        fig.add_trace(
+            go.Scatter3d(
+                x=r * np.cos(theta),
+                y=r * np.sin(theta),
+                z=np.zeros_like(theta),
+                mode="lines",
+                line=dict(
+                    color="rgba(23,23,23,0.24)",
+                    width=4
+                ),
+                hoverinfo="skip",
+                showlegend=False
+            )
+        )
+
+
+    # Small radial lines to make the stadium easier to read
+    for angle in np.linspace(0, 2 * np.pi, 12, endpoint=False):
+        fig.add_trace(
+            go.Scatter3d(
+                x=[0, 18 * np.cos(angle)],
+                y=[0, 18 * np.sin(angle)],
+                z=[0, 0],
+                mode="lines",
+                line=dict(
+                    color="rgba(23,23,23,0.11)",
+                    width=2
+                ),
+                hoverinfo="skip",
+                showlegend=False
+            )
+        )
+
+
+    # Vertical Poles
+    x_lines = []
+    y_lines = []
+    z_lines = []
+    line_colors = []
+
+    for _, row in plot_df.iterrows():
+        # Aggiungiamo base, cima e un'interruzione (None) per separare i pali
+        x_lines.extend([row["x"], row["x"], None])
+        y_lines.extend([row["y"], row["y"], None])
+        z_lines.extend([0, row["z"], None])
+        
+        # Associamo a ogni segmento il valore di efficienza per il colore
+        val = row["Medals_per_1000_entries"]
+        line_colors.extend([val, val, val])
+
+    fig.add_trace(
+        go.Scatter3d(
+            x=x_lines,
+            y=y_lines,
+            z=z_lines,
+            mode="lines",
+            line=dict(
+                color=line_colors,
+                colorscale=[
+                    [0.0, "#d5cbb9"],
+                    [0.45, "#b88a2e"],
+                    [1.0, "#171717"]
+                ],
+                width=5
+            ),
+            hoverinfo="skip",
+            showlegend=False
+        )
+    )
+
+    # Bases: color = medal efficiency
+    fig.add_trace(
+        go.Scatter3d(
+            x=plot_df["x"],
+            y=plot_df["y"],
+            z=[0] * len(plot_df),
+            mode="markers",
+            marker=dict(
+                size=11,
+                color=plot_df["Medals_per_1000_entries"],
+                colorscale=[
+                    [0.0, "#d5cbb9"],
+                    [0.45, "#b88a2e"],
+                    [1.0, "#171717"]
+                ],
+                opacity=0.96,
+                line=dict(
+                    color="#171717",
+                    width=1.5
+                ),
+                colorbar=dict(
+                    title=dict(
+                        text="Medals<br>per 1000<br>entries",
+                        font=dict(
+                            size=13,
+                            family="Roboto Mono",
+                            color="#171717"
+                        )
+                    ),
+                    thickness=18,
+                    len=0.55,
+                    x=1.02
+                )
+            ),
+            customdata=np.stack(
+                [
+                    plot_df["NOC"],
+                    plot_df["Total_medals"],
+                    plot_df["Athlete_entries"],
+                    plot_df["Medal_sports"],
+                    plot_df["Medals_per_1000_entries"]
+                ],
+                axis=-1
+            ),
+            hovertemplate=
+                "<b>%{customdata[0]}</b><br><br>" +
+                "Total medals: %{customdata[1]:.0f}<br>" +
+                "Athlete entries: %{customdata[2]:.0f}<br>" +
+                "Medal-winning sports: %{customdata[3]:.0f}<br>" +
+                "Medals / 1000 entries: %{customdata[4]:.2f}" +
+                "<extra></extra>",
+            showlegend=False
+        )
+    )
+
+## ============================================================
+    # HIGHLIGHT SELECTED NATION E CLEAN POLE TOPS (HOVER RIPRISTINATO)
+    # ============================================================
+    selected_noc = st.session_state.get("selected_stadium_noc", None)
+    
+    # 1. LOGICA DINAMICA: Misura 5 per tutti, la nazione scelta si nasconde qui per evitare doppioni neri
+    marker_sizes = [0 if noc == selected_noc else 5 for noc in plot_df["NOC"]]
+    clean_labels = [noc if noc != selected_noc else "" for noc in plot_df["NOC"]]
+    
+    # Dati condivisi per i tooltip (Hover)
+    hover_customdata = np.stack([
+        plot_df["NOC"], plot_df["Total_medals"], plot_df["Gold"],
+        plot_df["Silver"], plot_df["Bronze"], plot_df["Athlete_entries"],
+        plot_df["Medal_sports"], plot_df["Medals_per_1000_entries"],
+        plot_df["Gold_share"] * 100
+    ], axis=-1)
+    
+    hover_template = (
+        "<b>%{customdata[0]}</b><br><br>" +
+        "Total medals: %{customdata[1]:.0f}<br>" +
+        "Gold: %{customdata[2]:.0f}<br>" +
+        "Silver: %{customdata[3]:.0f}<br>" +
+        "Bronze: %{customdata[4]:.0f}<br>" +
+        "Athlete entries: %{customdata[5]:.0f}<br>" +
+        "Medal-winning sports: %{customdata[6]:.0f}<br>" +
+        "Medals / 1000 entries: %{customdata[7]:.2f}<br>" +
+        "Gold share: %{customdata[8]:.1f}%" +
+        "<extra></extra>"
+    )
+
+    # 2. PALLINI IN CIMA PER LE NAZIONI STANDARD (Misura bilanciata = 5)
+    fig.add_trace(
+        go.Scatter3d(
+            x=plot_df["x"],
+            y=plot_df["y"],
+            z=plot_df["z"],
+            mode="markers",
+            marker=dict(
+                size=marker_sizes,
+                color="#171717",
+                opacity=1
+            ),
+            customdata=hover_customdata,
+            hovertemplate=hover_template,
+            name="Nations"
+        )
+    )
+
+    # 3. ETICHETTE DI TESTO FLUTTUANTI PER LE NAZIONI STANDARD (Cliccabili)
+    fig.add_trace(
+        go.Scatter3d(
+            x=plot_df["x"],
+            y=plot_df["y"],
+            z=plot_df["z"] + 3.5,
+            mode="text",
+            text=clean_labels,
+            textposition="middle center", 
+            textfont=dict(size=10, color="#171717", family="Roboto Mono"),
+            customdata=hover_customdata,
+            hovertemplate=hover_template,
+            showlegend=False
+        )
+    )
+
+    # 4. EVIDENZIAZIONE NAZIONE SELEZIONATA
+    if selected_noc in plot_df["NOC"].values:
+        selected_row = plot_df[plot_df["NOC"] == selected_noc].iloc[0]
+        
+        # Estraiamo i dati specifici della nazione scelta per la sua scheda hover personale
+        selected_customdata = [[
+            selected_row["NOC"], selected_row["Total_medals"], selected_row["Gold"],
+            selected_row["Silver"], selected_row["Bronze"], selected_row["Athlete_entries"],
+            selected_row["Medal_sports"], selected_row["Medals_per_1000_entries"],
+            selected_row["Gold_share"] * 100
+        ]]
+        
+        # NOTA: Abbiamo rimosso la traccia go.Scatter3d(mode="lines") per il palo dorato. 
+        # In questo modo la colonna manterrà il bellissimo gradiente di colore impostato precedentemente!
+        
+        # Pallino d'oro in cima (Ora con HOVER ATTIVO!)
+        fig.add_trace(
+            go.Scatter3d(
+                x=[selected_row["x"]],
+                y=[selected_row["y"]],
+                z=[selected_row["z"]],
+                mode="markers",
+                marker=dict(
+                    size=8,
+                    color="#b88a2e",
+                    opacity=1
+                ),
+                customdata=selected_customdata,
+                hovertemplate=hover_template,
+                showlegend=False
+            )
+        )
+        
+        # Anello d'oro ornamentale alla base dello stadio
+        theta_sel = np.linspace(0, 2 * np.pi, 120)
+        ring_r = 1.1
+        fig.add_trace(
+            go.Scatter3d(
+                x=selected_row["x"] + ring_r * np.cos(theta_sel),
+                y=selected_row["y"] + ring_r * np.sin(theta_sel),
+                z=np.zeros_like(theta_sel) + 0.35,
+                mode="lines",
+                line=dict(color="#b88a2e", width=8),
+                hoverinfo="skip",
+                showlegend=False
+            )
+        )
+        
+        # Testo fluttuante dorato con la stella (Ora con HOVER ATTIVO!)
+        fig.add_trace(
+            go.Scatter3d(
+                x=[selected_row["x"]],
+                y=[selected_row["y"]],
+                z=[selected_row["z"] + 3.5],
+                mode="text",
+                text=[f" ★  {selected_noc}"],
+                textfont=dict(size=13, color="#b88a2e", family="Roboto Mono"),
+                customdata=selected_customdata,
+                hovertemplate=hover_template,
+                showlegend=False
+            )
+        )
+
+    # ============================================================
+    # RADIAL LEGEND (Asse esplicativo sul pavimento)
+    # ============================================================
+    # 1. Etichetta del centro
+    fig.add_trace(
+        go.Scatter3d(
+            x=[0],
+            y=[0],
+            z=[0],
+            mode="text",
+            text=["CENTER<br>Fewer sports"],
+            textfont=dict(
+                size=10,
+                color="#171717",
+                family="Roboto Mono"
+            ),
+            hoverinfo="skip",
+            showlegend=False
+        )
+    )
+    
+    # 2. Raggio tratteggiato che fa da "Asse visivo"
+    guide_angle = -np.pi / 4  
+    guide_r = 18.5
+    fig.add_trace(
+        go.Scatter3d(
+            x=[0, guide_r * np.cos(guide_angle)],
+            y=[0, guide_r * np.sin(guide_angle)],
+            z=[0, 0],
+            mode="lines",
+            line=dict(
+                color="#171717",
+                width=3,
+                dash="dot"
+            ),
+            hoverinfo="skip",
+            showlegend=False
+        )
+    )
+    
+    # 3. Testo esplicativo fluttuante sopra il raggio
+    fig.add_trace(
+        go.Scatter3d(
+            x=[(guide_r * 0.55) * np.cos(guide_angle)],
+            y=[(guide_r * 0.55) * np.sin(guide_angle)],
+            z=[1.5], 
+            mode="text",
+            text=["DISTANCE = MORE SPORT DIVERSITY"],
+            textfont=dict(
+                size=10,
+                color="#171717",
+                family="Roboto Mono"
+            ),
+            hoverinfo="skip",
+            showlegend=False
+        )
+    )
+    # ============================================================
+    # LAYOUT
+    # ============================================================
+
+    fig.update_layout(
+        title=dict(
+            text="Olympic nations as a 3D flag stadium",
+            font=dict(
+                family="Playfair Display",
+                size=30,
+                color="#171717"
+            ),
+            x=0.02,
+            xanchor="left"
+        ),
+        height=820,
+        paper_bgcolor="#f4efe3",
+        plot_bgcolor="#f4efe3",
+        font=dict(
+            family="Roboto Mono",
+            color="#171717"
+        ),
+        scene=dict(
+            bgcolor="#f4efe3",
+            xaxis=dict(
+                title="",  # <-- Testo rimosso per pulire il pavimento
+                showticklabels=False,
+                showgrid=True,
+                gridcolor="rgba(23,23,23,0.08)",
+                zeroline=False,
+                showbackground=False,
+                visible=True,
+                linecolor="rgba(23,23,23,0.35)",
+            ),
+            yaxis=dict(
+                title="",  # <-- Testo rimosso per pulire il pavimento
+                showticklabels=False,
+                showgrid=True,
+                gridcolor="rgba(23,23,23,0.08)",
+                zeroline=False,
+                showbackground=False,
+                visible=True,
+                linecolor="rgba(23,23,23,0.35)",
+            ),
+            zaxis=dict(
+                title=dict(
+                    text="Total Medals",  # <-- Testo breve e pulito per l'altezza
+                    font=dict(
+                        family="Roboto Mono",
+                        size=11,
+                        color="#171717"
+                    )
+                ),
+                backgroundcolor="#f4efe3",
+                gridcolor="rgba(23,23,23,0.12)",
+                linecolor="rgba(23,23,23,0.45)",
+                zerolinecolor="rgba(23,23,23,0.35)",
+                tickfont=dict(
+                    color="#171717",
+                    size=10,
+                    family="Roboto Mono"
+                )
+            ),
+            camera=dict(
+                eye=dict(x=1.85, y=2.05, z=1.25)
+            ),
+            aspectmode="manual",
+            aspectratio=dict(
+                x=1.45,
+                y=1.45,
+                z=0.9
+            )
+        ),
+        hoverlabel=dict(
+            bgcolor="#f4efe3",
+            bordercolor="#171717",
+            font=dict(
+                family="Roboto Mono",
+                size=12,
+                color="#171717"
+            )
+        ),
+        margin=dict(l=0, r=0, t=90, b=0)
+    )
+
+    st.plotly_chart(fig, width="stretch")
+
+    # ============================================================
+    # EXPLANATION BOX
+    # ============================================================
+
+    st.markdown(
+        """
+        <div class="medal-detail-card">
+            <div class="medal-detail-title">How to read this 3D stadium</div>
+            <div class="medal-detail-text">
+                <b>Flag height</b> = more total medals.<br>
+                <b>Distance from the centre</b> = medals won across more different sports.<br>
+                <b>Base colour</b> = higher medal efficiency compared with athlete entries.<br><br>
+                So the chart highlights both classic Olympic giants and nations that are unexpectedly efficient.
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    
         
 # ============================================================
 # YEAR EXPLORER PAGE
@@ -2352,11 +3868,6 @@ def year_archive_explorer(df, df_medals):
                 Choose one or more sports, select the nations you want to compare,
                 and generate a focused Olympic view for this edition.
             </p>
-            <div class="filter-mini-row">
-                <span class="filter-mini-tag">Sport filter</span>
-                <span class="filter-mini-tag">Nation filter</span>
-                <span class="filter-mini-tag">Podium view</span>
-                <span class="filter-mini-tag">Medal wall</span>
             </div>
         </div>
         """,
@@ -2439,16 +3950,16 @@ def year_archive_explorer(df, df_medals):
 
     with control_col2:
         if chart_view == "Sport participation":
-            top_n = st.slider("How many results?", min_value=1, max_value=15, value=10)
+            top_n = st.slider("How many results?", min_value=1, max_value=15, value=15)
         
         elif chart_view == "Nation medal ranking":
-            top_n = st.slider("How many results?", min_value=1, max_value=15, value=10)
+            top_n = st.slider("How many results?", min_value=1, max_value=15, value=15)
         
         elif chart_view == "Events by sport":
-            top_n = st.slider("How many results?", min_value=1, max_value=20, value=10)
+            top_n = st.slider("How many results?", min_value=1, max_value=20, value=20)
         
         elif chart_view == "Sport × nation medals":
-            top_n = st.slider("How many results?", min_value=1, max_value=7, value=5)
+            top_n = st.slider("How many results?", min_value=1, max_value=7, value=7)
         
         elif chart_view == "Gender distribution":
             top_n = None
@@ -2783,7 +4294,7 @@ def olympic_rings(period_df, era):
     }}
     .instruction {{
         position: absolute;
-        bottom: 28px;
+        bottom: 10px;
         width: 100%;
         text-align: center;
         font-family: 'Space Mono', monospace;
@@ -3258,6 +4769,7 @@ def athlete_race(df_medals):
     normalized_b_closed = normalized_b + [normalized_b[0]]
     actual_a_closed = actual_a + [actual_a[0]]
     actual_b_closed = actual_b + [actual_b[0]]
+    chart_categories = [c + " ❓" for c in categories_closed]
 
     radar_fig = go.Figure()
 
@@ -3275,7 +4787,7 @@ def athlete_race(df_medals):
                 dash="solid"
             ),
             marker=dict(
-                color="#f4efe3",
+                color="#171717",
                 size=12,
                 symbol="circle-open",
                 line=dict(
@@ -3364,6 +4876,7 @@ def athlete_race(df_medals):
     )
 
     st.plotly_chart(radar_fig, width="stretch")
+    
 
     comparison_df = pd.DataFrame(
         {
@@ -3373,131 +4886,105 @@ def athlete_race(df_medals):
         }
     )
 
+  # Interactive and clickable metrics dictionary for Athletes
     st.markdown(
         """
-        <div class="medal-detail-card">
-            <div class="medal-detail-title">How to read this radar</div>
-            <div class="medal-detail-text">
-                Each axis represents one Olympic career dimension. The radar values are normalized from 0 to 100
-                between the two selected athletes. When both athletes have the same value, their points overlap;
-                this is why one athlete is shown with an open circle and the other with a golden X.
-                The table below reports the real values.
-            </div>
+        <style>
+        .radar-dictionary {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            max-width: 900px;
+            margin: 10px auto 40px auto;
+        }
+        .radar-term {
+            background: #f4efe3;
+            border: 1.5px solid #171717;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 12px;
+            box-shadow: 4px 4px 0px #171717;
+            transition: all 0.2s ease;
+        }
+        .radar-term:hover {
+            background: #171717;
+            color: #f4efe3;
+            box-shadow: 4px 4px 0px #b88a2e;
+        }
+        .radar-term summary {
+            list-style: none;
+            font-weight: 600;
+            outline: none;
+        }
+        .radar-term summary::-webkit-details-marker {
+            display: none;
+        }
+        .radar-term[open] {
+            background: #171717;
+            color: #f4efe3;
+            box-shadow: 4px 4px 0px #b88a2e;
+        }
+        .radar-term[open] summary {
+            color: #b88a2e;
+            margin-bottom: 8px;
+            border-bottom: 1px dashed rgba(244,239,227,0.3);
+            padding-bottom: 6px;
+        }
+        .radar-desc {
+            font-size: 11px;
+            line-height: 1.6;
+            color: rgba(244,239,227,0.9);
+            max-width: 240px;
+        }
+        </style>
+        
+        <div style="text-align:center; font-family: 'Playfair Display', serif; font-size: 22px; color: #171717; margin-top: 15px;">
+            Athlete Metrics Dictionary
+        </div>
+        <div style="text-align:center; font-family: 'Roboto Mono', monospace; font-size: 10px; color: #b88a2e; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 18px;">
+            Click a parameter to read its definition
+        </div>
+        
+        <div class="radar-dictionary">
+            <details class="radar-term">
+                <summary>Gold medals ❓</summary>
+                <div class="radar-desc">The total number of gold medals won by the athlete in this specific sport.</div>
+            </details>
+            <details class="radar-term">
+                <summary>Silver medals ❓</summary>
+                <div class="radar-desc">The total number of silver medals won by the athlete in this specific sport.</div>
+            </details>
+            <details class="radar-term">
+                <summary>Bronze medals ❓</summary>
+                <div class="radar-desc">The total number of bronze medals won by the athlete in this specific sport.</div>
+            </details>
+            <details class="radar-term">
+                <summary>Total medals ❓</summary>
+                <div class="radar-desc">The overall number of medals won by the athlete across all events in this sport.</div>
+            </details>
+            <details class="radar-term">
+                <summary>Olympic editions ❓</summary>
+                <div class="radar-desc">The number of different Olympic Games in which the athlete managed to win at least one medal.</div>
+            </details>
+            <details class="radar-term">
+                <summary>Events medalled ❓</summary>
+                <div class="radar-desc">The number of distinct disciplines or events in which the athlete stepped on the podium.</div>
+            </details>
+            <details class="radar-term">
+                <summary>Career span ❓</summary>
+                <div class="radar-desc">The number of years between the athlete's very first and very last Olympic medal in this sport.</div>
+            </details>
+            <details class="radar-term">
+                <summary>Medals per edition ❓</summary>
+                <div class="radar-desc">The average number of medals won per Olympic edition attended (Total medals divided by Olympic editions).</div>
+            </details>
         </div>
         """,
         unsafe_allow_html=True
     )
-    table_rows = ""
-
-    for _, row in comparison_df.iterrows():
-        value_a = row[athlete_a_name]
-        value_b = row[athlete_b_name]
-
-        if isinstance(value_a, float) and value_a.is_integer():
-            value_a = int(value_a)
-
-        if isinstance(value_b, float) and value_b.is_integer():
-            value_b = int(value_b)
-
-        table_rows += f"""
-         <tr>
-            <td>{html.escape(str(row["Metric"]))}</td>
-            <td>{html.escape(str(value_a))}</td>
-            <td>{html.escape(str(value_b))}</td>
-        </tr>
-        """
-
-    st.html(
-        f"""
-        <style>
-            .radar-table-wrapper {{
-                max-width: 900px;
-                margin: 18px auto 34px auto;
-                border: 1.5px solid #171717;
-                background: #171717;
-                box-shadow: 5px 5px 0px #b88a2e;
-            }}
-
-            .radar-table {{
-                width: 100%;
-                border-collapse: collapse;
-                font-family: 'Roboto Mono', monospace;
-                background: #171717;
-                color: #f4efe3;
-                font-size: 12px;
-            }}
-
-            .radar-table th {{
-                color: #f4efe3 !important;
-                background: #171717 !important;
-                border-bottom: 1.5px solid #f4efe3;
-                border-right: 1px solid rgba(244,239,227,0.35);
-                padding: 10px 12px;
-                text-align: left;
-                font-weight: 600;
-                letter-spacing: 0.04em;
-            }}
-
-            .radar-table td {{
-                color: #f4efe3 !important;
-                background: #171717 !important;
-                border-bottom: 1px solid rgba(244,239,227,0.22);
-                border-right: 1px solid rgba(244,239,227,0.22);
-                padding: 9px 12px;
-                text-align: left;
-            }}
-
-            .radar-table td:not(.radar-metric) {{
-                text-align: center;
-                font-weight: 600;
-            }}
-
-            .radar-table tr:last-child td {{
-                border-bottom: none;
-            }}
-
-            .radar-table th:last-child,
-            .radar-table td:last-child {{
-                border-right: none;
-            }}
-
-            .radar-table-title {{
-                font-family: 'Playfair Display', serif;
-                font-size: 26px;
-                color: #f4efe3;
-                padding: 14px 16px 4px 16px;
-            }}
-
-            .radar-table-subtitle {{
-                font-family: 'Roboto Mono', monospace;
-                font-size: 10px;
-                letter-spacing: 0.18em;
-                text-transform: uppercase;
-                color: #b88a2e;
-                padding: 0 16px 12px 16px;
-            }}
-        </style>
-
-        <div class="radar-table-wrapper">
-            <div class="radar-table-title">Real values</div>
-            <div class="radar-table-subtitle">Radar metrics comparison</div>
-
-            <table class="radar-table">
-                <thead>
-                    <tr>
-                        <th>Metric</th>
-                        <th>{html.escape(str(athlete_a_name))}</th>
-                        <th>{html.escape(str(athlete_b_name))}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {table_rows}
-                </tbody>
-            </table>
-        </div>
-        """
-    )
-
+    
 
 
 # ============================================================
@@ -3665,6 +5152,7 @@ def nation_duel(df_medals):
         horizontal=True
     )
 
+
     # ============================================================
     # 1. EDITION-BY-EDITION RIVALRY
     # ============================================================
@@ -3676,81 +5164,144 @@ def nation_duel(df_medals):
             .size()
             .reset_index(name="Medals")
         )
-
         pivot = medals_by_year.pivot(
             index="Year",
             columns="NOC",
             values="Medals"
         ).fillna(0)
-
+        
         for noc in [nation_a, nation_b]:
             if noc not in pivot.columns:
                 pivot[noc] = 0
-
+                
         pivot = pivot.reset_index()
-        pivot["Medal gap"] = pivot[nation_a] - pivot[nation_b]
+        pivot = pivot.sort_values("Year")
 
-        pivot["Winner"] = np.where(
-            pivot["Medal gap"] > 0,
-            nation_a,
-            np.where(
-                pivot["Medal gap"] < 0,
-                nation_b,
-                "Tie"
+        # Determiniamo dinamicamente il leader storico del duello per l'asse positivo
+        if summary_a["total"] >= summary_b["total"]:
+            top_nation = nation_a
+            bottom_nation = nation_b
+        else:
+            top_nation = nation_b
+            bottom_nation = nation_a
+
+        # Calcoliamo la differenza netta tra il Leader e l'Inseguitore
+        pivot["Net Difference"] = pivot[top_nation] - pivot[bottom_nation]
+
+        fig = go.Figure()
+
+        # 1. Barre Superiori (Asse Y Positivo) - Nazione Leader
+        fig.add_trace(
+            go.Bar(
+                x=pivot["Year"],
+                y=pivot[top_nation],
+                name=f"{top_nation}",
+                marker_color="#b88a2e",  # Colore ottone vintage
+                marker_line_color="#171717",
+                marker_line_width=1.2,
+                hovertemplate="<b>%{x}</b><br>Nation: " + top_nation + "<br>Medals: %{y}<extra></extra>"
             )
         )
 
-        pivot["Gap label"] = pivot["Medal gap"].apply(
-            lambda x: f"{nation_a} +{int(x)}" if x > 0 else (
-                f"{nation_b} +{abs(int(x))}" if x < 0 else "Tie"
+        # 2. Barre Inferiori (Asse Y Negativo) - Nazione Sfidante
+        fig.add_trace(
+            go.Bar(
+                x=pivot["Year"],
+                y=-pivot[bottom_nation],  # Il segno meno specchia la barra verso il basso
+                name=f"{bottom_nation} ",
+                marker_color="#c0c0c0",  # Colore inchiostro scuro
+                marker_line_color="#171717",
+                marker_line_width=1.2,
+                customdata=pivot[bottom_nation],  # Salviamo il valore positivo per il tooltip
+                hovertemplate="<b>%{x}</b><br>Nation: " + bottom_nation + "<br>Medaglie: %{customdata}<extra></extra>"
             )
         )
 
-        # Calcolo dinamico del colore in base al totale medaglie cumulative
-        color_a = "#b88a2e" if summary_a["total"] >= summary_b["total"] else "#c0c0c0"
-        color_b = "#b88a2e" if summary_b["total"] > summary_a["total"] else "#c0c0c0"
-
-        fig = px.bar(
-            pivot,
-            x="Year",
-            y="Medal gap",
-            color="Winner",
-            title=f"Who won each Olympic edition? · {nation_a} vs {nation_b}",
-            color_discrete_map={
-                nation_a: color_a,
-                nation_b: color_b,
-                "Tie": "#68645c"
-            },
-            hover_data={
-                nation_a: True,
-                nation_b: True,
-                "Medal gap": True,
-                "Winner": True
-            }
+        # 3. Linea della Differenza Netta (Gap)
+        fig.add_trace(
+            go.Scatter(
+                x=pivot["Year"],
+                y=pivot["Net Difference"],
+                name="Net Difference",
+                mode="lines+markers",
+                line=dict(color="#171717", width=2.5, dash="dot"), # Colore muted del tuo CSS
+                marker=dict(
+                    color="#f4efe3", # Sfondo carta per risaltare sopra le barre
+                    size=8,
+                    line=dict(color="#171717", width=1.5)
+                ),
+                hovertemplate="<b>%{x}</b><br>Net Difference: %{y}<extra></extra>"
+            )
         )
-
-        fig.update_traces(
-            marker_line_color="#171717",
-            marker_line_width=1.2
-            
-        )
-
-        fig.add_hline(
-            y=0,
-            line_width=2,
-            line_color="#171717"
-        )
-
-        fig = apply_plotly_theme(fig, height=560)
 
         fig.update_layout(
-            xaxis_title="Olympic year",
-            yaxis_title=f"Medal gap ({nation_a} − {nation_b})",
-            legend_title_text="Edition winner",
-            bargap=0.25,
-            margin=dict(l=60, r=80, t=80, b=60)
+            title=dict(
+                text=f"Who won more Edition-by-Edition? · {top_nation} vs {bottom_nation}",
+                font=dict(
+                    family="Playfair Display",
+                    size=26,
+                    color="#171717"
+                ),
+                x=0,
+                xanchor="left"
+            ),
+            height=580,
+            paper_bgcolor="#f4efe3",
+            plot_bgcolor="#f4efe3",
+            barmode="overlay", 
+            font=dict(
+                family="Roboto Mono",
+                color="#171717"
+            ),
+            xaxis=dict(
+                title="Olympic Year",
+                gridcolor="rgba(23,23,23,0.05)",
+                linecolor="#171717",
+                tickmode="linear",
+                dtick=4,
+                tickfont=dict(color="#171717")
+            ),
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=1.03,
+                xanchor="center",
+                x=0.5,
+                font=dict(color="#171717")
+            ),
+            hoverlabel=dict(
+                bgcolor="#f4efe3",
+                bordercolor="#171717",
+                font=dict(
+                    family="Roboto Mono",
+                    size=13,
+                    color="#171717"
+                )
+            ),
+            margin=dict(l=60, r=80, t=115, b=60)
         )
 
+        max_val = int(max(pivot[top_nation].max(), pivot[bottom_nation].max(), pivot["Net Difference"].abs().max()))
+        step = 20 if max_val <= 100 else 50
+        tick_max = ((max_val // step) + 1) * step
+        
+        tick_vals = list(range(-tick_max, tick_max + 1, step))
+        tick_text = [str(abs(v)) for v in tick_vals]  # Trasforma i valori in stringhe assolute (senza "-")
+        
+        fig.update_layout(
+            yaxis=dict(
+                title="Number of Medals",
+                gridcolor="rgba(23,23,23,0.18)",
+                linecolor="#171717",
+                tickfont=dict(color="#171717"),
+                tickvals=tick_vals,
+                ticktext=tick_text
+            )
+        )
+
+        # Aggiungiamo una linea marcata sullo zero per dividere l'orizzonte delle due nazioni
+        fig.add_hline(y=0, line_width=1.5, line_color="#171717")
+        
         st.plotly_chart(fig, width="stretch")
 
         
@@ -3986,6 +5537,7 @@ def nation_duel(df_medals):
         normalized_b_closed = normalized_b + [normalized_b[0]]
         actual_a_closed = actual_a + [actual_a[0]]
         actual_b_closed = actual_b + [actual_b[0]]
+        chart_categories = [c + " ❓" for c in categories_closed]
 
         # Calcolo dinamico dei colori (linee e bordi)
         color_a = "#b88a2e" if summary_a["total"] >= summary_b["total"] else "#8A8D91"
@@ -4106,14 +5658,111 @@ def nation_duel(df_medals):
         )
 
         st.plotly_chart(fig, width="stretch")
-
+        # Interactive and clickable metrics dictionary
+        st.markdown(
+            """
+            <style>
+            .radar-dictionary {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 12px;
+                justify-content: center;
+                max-width: 900px;
+                margin: 10px auto 40px auto;
+            }
+            .radar-term {
+                background: #f4efe3;
+                border: 1.5px solid #171717;
+                padding: 8px 16px;
+                cursor: pointer;
+                font-family: 'Roboto Mono', monospace;
+                font-size: 12px;
+                box-shadow: 4px 4px 0px #171717;
+                transition: all 0.2s ease;
+            }
+            .radar-term:hover {
+                background: #171717;
+                color: #f4efe3;
+                box-shadow: 4px 4px 0px #b88a2e;
+            }
+            .radar-term summary {
+                list-style: none;
+                font-weight: 600;
+                outline: none;
+            }
+            .radar-term summary::-webkit-details-marker {
+                display: none;
+            }
+            .radar-term[open] {
+                background: #171717;
+                color: #f4efe3;
+                box-shadow: 4px 4px 0px #b88a2e;
+            }
+            .radar-term[open] summary {
+                color: #b88a2e;
+                margin-bottom: 8px;
+                border-bottom: 1px dashed rgba(244,239,227,0.3);
+                padding-bottom: 6px;
+            }
+            .radar-desc {
+                font-size: 11px;
+                line-height: 1.6;
+                color: rgba(244,239,227,0.9);
+                max-width: 240px;
+            }
+            </style>
+            
+            <div style="text-align:center; font-family: 'Playfair Display', serif; font-size: 22px; color: #171717; margin-top: 15px;">
+                Radar Metrics Dictionary
+            </div>
+            <div style="text-align:center; font-family: 'Roboto Mono', monospace; font-size: 10px; color: #b88a2e; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 18px;">
+                Click a parameter to read its definition
+            </div>
+            
+            <div class="radar-dictionary">
+                <details class="radar-term">
+                    <summary>Total medals ❓</summary>
+                    <div class="radar-desc">The overall number of medals won by the nation across all Summer editions present in the archive.</div>
+                </details>
+                <details class="radar-term">
+                    <summary>Gold medals ❓</summary>
+                    <div class="radar-desc">The total number of gold medals, historically the metric that defines the prestige and weight of a nation.</div>
+                </details>
+                <details class="radar-term">
+                    <summary>Medal sports ❓</summary>
+                    <div class="radar-desc">The number of different sports in which the nation has managed to win at least one medal in its history.</div>
+                </details>
+                <details class="radar-term">
+                    <summary>Medal editions ❓</summary>
+                    <div class="radar-desc">The total number of Olympic editions in which the nation has won at least one medal.</div>
+                </details>
+                <details class="radar-term">
+                    <summary>Best edition ❓</summary>
+                    <div class="radar-desc">The absolute record: the maximum number of medals won by the nation in a single Olympic edition.</div>
+                </details>
+                <details class="radar-term">
+                    <summary>Medals / edition ❓</summary>
+                    <div class="radar-desc">The mathematical average of medals won per single edition (counting only the editions where the nation participated and won a medal).</div>
+                </details>
+                <details class="radar-term">
+                    <summary>Gold efficiency ❓</summary>
+                    <div class="radar-desc">The percentage of gold medals out of the total medals won. It measures the "quality" of the metal compared to the "quantity".</div>
+                </details>
+                <details class="radar-term">
+                    <summary>Specialization ❓</summary>
+                    <div class="radar-desc">The concentration of victories: the percentage of medals won in the nation's top 3 sports. A high value indicates a heavy reliance on just a few sports.</div>
+                </details>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
         
 # ============================================================
 # TRIVIA
 # ============================================================
 
 def curiosity_cards():
-    st.markdown('<div class="section-kicker">Lo sapevi che?</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-kicker">DID YOU KNOW THAT?</div>', unsafe_allow_html=True)
     st.markdown('<div class="section-title">Olympic Trivia from the Archive</div>', unsafe_allow_html=True)
 
     questions = [
@@ -4371,8 +6020,10 @@ def show_host_city_cartography(df):
     )
     host_map_df = map_agg_df.dropna(subset=["Latitude", "Longitude"])
     
-    st.markdown('<div class="section-box">', unsafe_allow_html=True)
-    st.markdown('<div class="section-title">Map of Summer Olympic Host Cities</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="section-title">Map of Summer Olympic Host Cities</div>',
+        unsafe_allow_html=True
+    )
     
     fig_map = px.scatter_geo(
         host_map_df,
@@ -4427,11 +6078,11 @@ def show_host_city_cartography(df):
         )
     )
     st.plotly_chart(fig_map, width="stretch")
-    st.markdown('</div>', unsafe_allow_html=True)
     
-    st.markdown('<div class="section-box">', unsafe_allow_html=True)
-    st.markdown('<div class="section-title">Register of Host Cities</div>', unsafe_allow_html=True)
-    
+    st.markdown(
+        '<div class="section-title">Register of Host Cities</div>',
+        unsafe_allow_html=True
+    )
     col1, col2, col3 = st.columns(3)
     host_columns = [col1, col2, col3]
     
@@ -4460,45 +6111,49 @@ def show_host_city_cartography(df):
                 unsafe_allow_html=True
             )
             
-    st.markdown('</div>', unsafe_allow_html=True)
-
-
+    
 # ============================================================
 # CURIOSITIES PAGE
 # ============================================================
 
-def show_curiosities_page(df):
-    st.markdown('<div class="cartography-title">Olympic Curiosities</div>', unsafe_allow_html=True)
-    st.markdown('<div class="cartography-subtitle">◆ Opening Ceremony · 1896 vs 2016 ◆</div>', unsafe_allow_html=True)
+def show_curiosities_page(df, df_medals):
+    st.markdown(
+        '<div class="cartography-title">Olympic Curiosities</div>',
+        unsafe_allow_html=True
+    )
+
+    st.markdown(
+        '<div class="cartography-subtitle">◆ Opening Ceremony · 1896 vs 2016 ◆</div>',
+        unsafe_allow_html=True
+    )
 
     back_col1, back_col2, back_col3 = st.columns([1.5, 1, 1.3])
 
     with back_col2:
-        if st.button("← Back to Olympic Archive", key="back_to_main_from_curiosities", width="stretch"):
+        if st.button(
+            "← Back to Olympic Archive",
+            key="back_to_main_from_curiosities",
+            width="stretch"
+        ):
             st.session_state.page = "main"
             st.rerun()
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    opening_ceremony_comparison()
+    
+
+    # 2. Libro sfogliabile sotto il confronto
+    opening_ceremony_book()
     st.markdown("<br><br>", unsafe_allow_html=True)
 
+    # 3. Grafici data stories
     olympic_evolution_chart(df)
     st.markdown("<br><br>", unsafe_allow_html=True)
-    st.markdown(
-        """
-        <div class="medal-detail-card">
-            <div class="medal-detail-title"> 🌍  The Incredible Anomaly of Melbourne-Stockholm 1956</div>
-            <div class="medal-detail-text">
-                Did you know that the 1956 edition was the only one in the history of the Summer Olympics to take place across two different nations and continents? <br><br>
-                The official host city was Melbourne, Australia. However, the Australian government enforced a strict six-month quarantine law for all incoming animals, including horses. This made it absolutely impossible for international athletes to transport and compete with their own horses.<br><br>
-                To avoid canceling the discipline, the IOC made an unprecedented decision: the <b>Equestrian</b> events were separated from the rest of the Games and moved to June in <b>Stockholm, Sweden</b> (reusing the 1912 Olympic Stadium). All other competitions took place regularly in Melbourne five months later, between November and December!
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
 
+    olympic_flag_galaxy_3d(df, df_medals)
+    st.markdown("<br><br>", unsafe_allow_html=True)
+
+    
 # ============================================================
 # MAIN
 # ============================================================
@@ -4512,6 +6167,13 @@ def main():
 
     if "page" not in st.session_state:
         st.session_state.page = "main"
+    
+    dispatch_from_url = st.query_params.get("dispatch", None)
+
+    if dispatch_from_url in ["explorer", "race", "duel", "trivia"]:
+        st.session_state.active_block = dispatch_from_url
+        st.session_state.page = "main"
+        st.session_state.era = "ALL"
 
     if "selected_medal_wall_noc" not in st.session_state:
         st.session_state.selected_medal_wall_noc = None
@@ -4520,21 +6182,43 @@ def main():
 
     with st.sidebar:
         # ---- Menu ----
-        st.markdown("<h2 style='text-align: center; color: #b88a2e;'>🧭 Menu</h2>", unsafe_allow_html=True)
+        st.markdown(
+            """
+            <div style="
+                text-align: center;
+                margin-top: 8px;
+                margin-bottom: 28px;
+                font-family: 'Playfair Display', serif;
+                font-size: 46px;
+                font-weight: 800;
+                color: #b88a2e;
+                line-height: 1;
+            ">
+                Menù <span style="font-size: 32px;"></span>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
         
-        if st.button("🏛️ The Olympic Archive (Home)", use_container_width=True):
-            st.session_state.page = "home"
-            st.rerun()
-
-        if st.button("📅 Year-by-Year Explorer", use_container_width=True):
-            st.session_state.page = "year_explorer"
+        if st.button("🏛️ The Olympic Archive 🏛️", use_container_width=True):
+            st.query_params.clear()  
+            st.session_state.page = "main" 
+            st.session_state.active_block = None 
             st.rerun()
             
-        if st.button("🌍 Cartography of Host Cities", use_container_width=True):
+        if st.button("Year-by-Year Explorer 📅", use_container_width=True):
+            st.query_params.clear()
+            st.session_state.page = "year_explorer"
+            st.session_state.active_block = None
+            st.rerun()
+            
+        if st.button("Cartography of Host Cities 🌍", use_container_width=True):
+            st.query_params.clear()  
             st.session_state.page = "hosts"
             st.rerun()
             
-        if st.button("✨ Olympic Curiosities", use_container_width=True):
+        if st.button(" Olympic Curiosities✨", use_container_width=True):
+            st.query_params.clear()  
             st.session_state.page = "curiosities"
             st.rerun()
             
@@ -4546,7 +6230,47 @@ def main():
         st.error("Default dataset not found! Please check your file path.")
         st.stop()
 
+    # === FORZATURA DELLO SCROLL AL TOP SENZA BLOCCHI DI SICUREZZA ===
+    current_view = f"{st.session_state.page}_{st.session_state.get('active_block', 'None')}"
+    
+    if "previous_view" not in st.session_state:
+        st.session_state.previous_view = current_view
 
+    if current_view != st.session_state.previous_view:
+        # Iniettiamo un'immagine trasparente 1x1 pixel invisibile. 
+        # Il browser esegue il codice dentro 'onload' bypassando i blocchi del Cloud e di React.
+        st.html(f"""
+            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" 
+                 data-view="{current_view}"
+                 onload="
+                    (function(){{
+                        function goTop(){{
+                            var elements = [
+                                document.querySelector('.main'),
+                                document.querySelector('[data-testid=stAppViewContainer]'),
+                                document.querySelector('.block-container'),
+                                document.documentElement,
+                                document.body
+                            ];
+                            elements.forEach(function(el){{
+                                if(el) {{
+                                    el.scrollTop = 0;
+                                    if(el.scrollTo) el.scrollTo({{top: 0, behavior: 'instant'}});
+                                }}
+                            }});
+                            window.scrollTo(0, 0);
+                        }}
+                        goTop();
+                        setTimeout(goTop, 50);
+                        setTimeout(goTop, 200);
+                        setTimeout(goTop, 400);
+                        setTimeout(goTop, 800);
+                    }})();
+                 " 
+                 style="display:none; width:0; height:0;" />
+        """)
+        st.session_state.previous_view = current_view
+    # ===============================================================
     masthead()
 
     if st.session_state.page == "hosts":
@@ -4555,7 +6279,7 @@ def main():
         return
 
     if st.session_state.page == "curiosities":
-        show_curiosities_page(df)
+        show_curiosities_page(df, df_medals)
         footer()
         return
 
@@ -4586,7 +6310,9 @@ def main():
                 width="stretch",
                 type="primary"
             ):
+                st.query_params.clear()
                 st.session_state.page = "year_explorer"
+                st.session_state.active_block = None
                 st.session_state.selected_medal_wall_noc = None
                 st.rerun()
 
@@ -4654,7 +6380,7 @@ def main():
 
         with c2:
             if st.button(
-                "🌍 View the Cartography of Host Cities 🧭",
+                " View the Cartography of Host Cities 🌍",
                 key="open_hosts",
                 width="stretch"
             ):
@@ -4665,7 +6391,7 @@ def main():
 
         with c2:
             if st.button(
-                "💡 Explore Olympic Curiosities 🔍",
+                "Explore Olympic Curiosities ✨",
                 key="open_curiosities_era",
                 width="stretch"
             ):
